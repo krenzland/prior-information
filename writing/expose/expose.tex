@@ -1,0 +1,146 @@
+% Created 2016-04-03 So 16:09
+\documentclass[11pt]{scrartcl}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage{microtype}
+\usepackage{fixltx2e}
+\usepackage{graphicx}
+\usepackage{grffile}
+\usepackage{longtable}
+\usepackage{wrapfig}
+\usepackage{rotating}
+\usepackage[normalem]{ulem}
+\usepackage{amsmath}
+\usepackage{textcomp}
+\usepackage{amssymb}
+\usepackage{capt-of}
+\usepackage{hyperref}
+\usepackage{bm}
+\author{Lukas Krenz}
+\date{\today}
+\title{Exposé: \\ Integration of Prior Knowledge for Regression and
+  Classification with Sparse Grids }
+
+\begin{document}
+\maketitle
+
+\section{Sparse Grids for Regression}
+\label{sec:orgheadline1}
+
+Sparse grids is a discretization technique that originates from numerical partial differential equations.
+They have many applications for various problems. We concentrate here on regression.
+
+Let \( \varphi_i(\bm{x})\) be a family of basis functions.
+
+We now define
+\begin{equation}
+\boldsymbol{\phi}(\boldsymbol{x}) = \begin{pmatrix}
+  \varphi_1(\bm{x}) \\
+  \vdots \\
+  \varphi_m(\bm{x})
+\end{pmatrix}
+, \quad
+\boldsymbol{\Phi}(\boldsymbol{x}) = \begin{bmatrix}
+  \boldsymbol{\phi}(x_1)^\intercal\\
+  \vdots \\
+  \boldsymbol{\phi}(x_n)^\intercal
+\end{bmatrix},
+\end{equation}
+which we use to express our regression formula
+\begin{equation}
+\hat{y} = \sum_{j = 1}^m \alpha_j \varphi_{j}(\bm{x}) = \boldsymbol{\alpha}^\intercal \bm{\phi} (\bm{x})
+\end{equation}
+as a weighted sum of the basis functions.
+
+We split out d-dimensional basis functions as follows using a tensor product
+over several one dimensional functions
+\begin{equation}
+\varphi_j (x_1, \ldots, x_n) = \prod_{k=1}^d \varphi_{jk} (x_k).
+\end{equation}
+We can now formulate our goal as an optimisation problem of the form
+\begin{equation}
+\min_{\bm{\alpha}} \left\Vert  \bm{\Phi} \bm{\alpha} - \bm{y}   \right\Vert_2^2  + \lambda \mathcal{S}(\bm{\alpha}), 
+\end{equation}
+with \(\mathcal{S}(\bm{\alpha})\) as a regularisation operator and \(\lambda\) as a constant.
+The standard regularisation method is the L2 regularisation 
+\begin{equation}
+\mathcal{S}(\bm{\alpha}) = \left\Vert \bm{\alpha} \right\Vert_2^2.
+\end{equation}
+From a Bayesian perspective it resembles a Gaussian prior on the weights with mean 0 and
+a constant variance  and is therefore distributed as follows
+\begin{equation}
+\alpha \sim \mathcal{N} (0, \bm{I} \sigma^2 ).
+\end{equation}
+
+\section{Goals}
+\label{sec:orgheadline6}
+The goal of the proposed bachelor thesis is to extend the SG++ toolbox for sparse grids with more ways to include prior information
+in the learning algorithm and to test different regularisation methods.
+
+This main objective can be dissected into four smaller subgoals all of which will be implemented and tested for validity.
+
+\subsection{Generalised weight prior}
+\label{sec:orgheadline2}
+The standard L2 regularisation assumes that all weights are distributed with the same variance. 
+
+The goal is to enhance this in a way that enables us to assume a variance for
+each individual weight and to use different and more general regularisation functions.
+
+This means using a prior on the weights that's normally distributed with zero mean and covariance matrix \(S_0\).
+To archive this, we use 
+\begin{equation}
+\mathcal{S} = \Vert L\bm{\alpha} \Vert_2^2
+\end{equation}
+for the regression term. In this equation \( L \) is a linear operator.
+
+\subsection{Different regularisation methods: Lasso and Elastic net}
+\label{sec:orgheadline3}
+We can use lasso regression to replace our regularisation operator with 
+\begin{equation}
+\mathcal{S} = \Vert \bm{\alpha} \Vert_1,
+\end{equation}
+which uses the Manhattan norm.
+
+Lasso regression can reduce some weights to zero. 
+This results in an implicit feature selection and thus leads to sparsity.
+
+Because the absolute value function is not differentiable at \(0\), we cannot use
+the standard gradient descent optimisation method.
+We must use a proximal gradient method, for example FISTA.
+
+It is also possible to use both Lasso and L2-regression at the same time, this is called elastic net regression.
+
+The goal is to implement lasso and elastic net regression and to test the quality of the results.
+\subsection{Fixed-interaction-terms}
+When using multiple regression variables, we have to choose our desired grid
+resolution for each variable interaction.
+For many problem categories we can use domain-specific knowledge. 
+
+In image classification for example, we can treat each pixel as a feature.
+The interaction of pixels that are directly next to each other are more
+interesting to model with a high resolution than pixels with a higher distance.
+
+The same strategy of modeling local interaction terms with a more finely
+grained grid can be used for other problems, such as time series, as well.
+
+The goal is to implement this method and to test,
+whether we are still able to get solid results even when using a lower resolution for
+some feature interactions.
+\subsection{Subspace selection}
+In addition to the interaction term selection we can also limit the number of
+subspaces we use for the sparse grid. We can describe the sparse grid space
+\(G^T_l\) of level \(l\) with
+\begin{equation}
+G^T_l = \bigcup_i \text{ such that } \left\vert i \right\vert_1 - T \left\vert i \right\vert_\infty \leq (l + d - 1) - T l.
+\end{equation}
+where \(d\) represents the number of dimensions. 
+The constant \(T\) can be chosen in the interval \([0, \infty\)) and governs our
+choice of subgrids. If we set \(T\) equal to \(0\) we recover the standard
+sparse grid.
+A higher value of \(T\) reduces the complexity of learning while reducing the
+quality of our results.
+
+The goal is to implement this subspace selection method and to test and
+validate results obtained with different grid selections.
+\end{document}
