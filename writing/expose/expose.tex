@@ -26,8 +26,6 @@
 \maketitle
 
 \section{Sparse Grids for Regression}
-\label{sec:orgheadline1}
-
 Sparse grids is a discretization technique that originates from numerical partial differential equations.
 They have many applications for various problems. We concentrate here on regression.
 
@@ -74,14 +72,12 @@ a constant variance  and is therefore distributed as follows
 \end{equation}
 
 \section{Goals}
-\label{sec:orgheadline6}
 The goal of the proposed bachelor thesis is to extend the SG++ toolbox for sparse grids with more ways to include prior information
 in the learning algorithm and to test different regularisation methods.
 
 This main objective can be dissected into four smaller subgoals all of which will be implemented and tested for validity.
 
 \subsection{Generalised weight prior}
-\label{sec:orgheadline2}
 The standard L2 regularisation assumes that all weights are distributed with the same variance. 
 
 The goal is to enhance this in a way that enables us to assume a variance for
@@ -95,7 +91,6 @@ To archive this, we use
 for the regression term. In this equation \( L \) is a linear operator.
 
 \subsection{Different regularisation methods: Lasso and Elastic net}
-\label{sec:orgheadline3}
 We can use lasso regression to replace our regularisation operator with 
 \begin{equation}
 \mathcal{S} = \Vert \bm{\alpha} \Vert_1,
