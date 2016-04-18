@@ -132,9 +132,10 @@ In addition to the interaction term selection we can also limit the number of
 subspaces we use for the sparse grid. We can describe the sparse grid space
 \(G^T_l\) of level \(l\) with
 \begin{equation}
-G^T_l = \bigcup_i \text{ such that } \left\vert i \right\vert_1 - T \left\vert i \right\vert_\infty \leq (l + d - 1) - T l.
+G^T_l = \bigcup_i G_i \text{ such that } \left\vert i \right\vert_1 - T \left\vert i \right\vert_\infty \leq (l + d - 1) - T l.
 \end{equation}
-where \(d\) represents the number of dimensions. 
+where \(d\) represents the number of dimensions.
+ 
 The constant \(T\) can be chosen in the interval \([0, \infty\)) and governs our
 choice of subgrids. If we set \(T\) equal to \(0\) we recover the standard
 sparse grid.
