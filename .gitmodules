@@ -1,0 +1,3 @@
+[submodule "libs/bayesopt"]
+	path = libs/bayesopt
+	url = https://github.com/rmcantin/bayesopt
