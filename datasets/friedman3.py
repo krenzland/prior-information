@@ -15,7 +15,7 @@ def write_friedman_with_seed(filename,n, seed):
 
 @DATA
 """
-    (X,Y) = data.make_friedman3(n_samples=n, random_state=seed)
+    (X,Y) = data.make_friedman3(n_samples=n, random_state=seed, noise=0.01)
     with open(filename, "w") as fp:
         fp.write(header)
         for xs, y in zip(X,Y):
@@ -26,7 +26,7 @@ def main():
     #  note: to generate comparable files, use seed 123456 for training, 234567 for testing, and 345678 for validation
     nSamples = 10000
     basename = "../SGpp/datadriven/tests/data/friedman3_10k_"
-    files = [("train", 123456), ("validation", 345678)]
+    files = [("train", 123456), ("validation", 345678), ("testing", 234567)]
     for (name, seed) in files:
         filename = basename + name + ".arff"
         write_friedman_with_seed(filename, nSamples, seed)
