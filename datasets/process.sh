@@ -31,6 +31,8 @@ main() {
     raw_dir="$dir/raw"
     res_dir="$dir/processed"
 
+    ./power_plant.py "$dir"
+    ./concrete.py "$dir"
     yeast_csv
     ./yeast.py "$res_dir"
     shuttle_csv
