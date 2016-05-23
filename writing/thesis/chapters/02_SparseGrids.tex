@@ -1,0 +1,52 @@
+\chapter{Sparse Grids}
+\section{Sparse Grids for Regression}
+Sparse grids is a discretization technique that originates from numerical partial differential equations.
+They have many applications for various problems. We concentrate here on regression.
+
+Let \( \varphi_i(\bm{x})\) be a family of basis functions.
+
+We now define
+\begin{equation}
+\boldsymbol{\phi}(\boldsymbol{x}) = \begin{pmatrix}
+  \varphi_1(\bm{x}) \\
+  \vdots \\
+  \varphi_m(\bm{x})
+\end{pmatrix}
+, \quad
+\boldsymbol{\Phi}(\boldsymbol{x}) = \begin{bmatrix}
+  \boldsymbol{\phi}(x_1)^\intercal\\
+  \vdots \\
+  \boldsymbol{\phi}(x_n)^\intercal
+\end{bmatrix},
+\end{equation}
+which we use to express our regression formula
+\begin{equation}
+\hat{y} = \sum_{j = 1}^m \alpha_j \varphi_{j}(\bm{x}) = \boldsymbol{\alpha}^\intercal \bm{\phi} (\bm{x})
+\end{equation}
+as a weighted sum of the basis functions.
+
+We split out d-dimensional basis functions as follows using a tensor product
+over several one dimensional functions
+\begin{equation}
+\varphi_j (x_1, \ldots, x_n) = \prod_{k=1}^d \varphi_{jk} (x_k).
+\end{equation}
+We can now formulate our goal as an optimisation problem of the form
+\begin{equation}
+  \label{eq:optGoal}
+\min_{\bm{\alpha}} \left\Vert  \bm{\Phi} \bm{\alpha} - \bm{y}   \right\Vert_2^2  + \lambda \mathcal{S}(\bm{\alpha}), 
+\end{equation}
+with \(\mathcal{S}(\bm{\alpha})\) as a regularisation operator and \(\lambda\) as a constant.
+The standard regularisation method is the L2 regularisation 
+\begin{equation}
+\mathcal{S}(\bm{\alpha}) = \left\Vert \bm{\alpha} \right\Vert_2^2.
+\end{equation}
+From a Bayesian perspective it resembles a Gaussian prior on the weights with mean 0 and
+a constant variance  and is therefore distributed as follows
+\begin{equation}
+\alpha \sim \mathcal{N} (0, \bm{I} \sigma^2 ).
+\end{equation}
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: "../main"
+%%% End:

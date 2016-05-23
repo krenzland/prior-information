@@ -9,11 +9,18 @@
   backend=biber,
   url=false,
   style=alphabetic,
+  backref=true,
+  hyperref=true,
   maxnames=4,
   minnames=3,
   maxbibnames=99,
   firstinits,
   uniquename=init]{biblatex} % TODO: adapt citation style
+
+\DefineBibliographyStrings{english}{%
+  backrefpage = {see p.},
+  backrefpages = {see pp.}
+}
 \usepackage{graphicx}
 \usepackage{scrhack} % necessary for listings package
 \usepackage{listings}
@@ -24,8 +31,11 @@
 \usepackage{booktabs}
 \usepackage[final]{microtype}
 \usepackage{caption}
-\usepackage[hidelinks]{hyperref} % hidelinks removes colored boxes around references and links
-
+\usepackage[linkcolor=red, colorlinks=true]{hyperref} % hidelinks removes colored boxes around references and links
+\usepackage{bm}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{amssymb}
 
 \bibliography{bibliography}
 
@@ -47,3 +57,8 @@
   keywordstyle=\bfseries\color{MediumBlue},
   stringstyle=\color{DarkGreen}
 }
+
+%%% Local Variables:
+%%% mode: plain-tex
+%%% TeX-master: "main"
+%%% End:

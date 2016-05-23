@@ -24,27 +24,28 @@
 % Set page numbering to avoid "destination with the same identifier has been already used" warning for cover page.
 % (see https://en.wikibooks.org/wiki/LaTeX/Hyperlinks#Problems_with_Links_and_Pages).
 \pagenumbering{alph}
-\input{pages/cover}
+%\input{pages/cover}
 
 \frontmatter{}
 
-\input{pages/title}
-\input{pages/disclaimer}
-\input{pages/acknowledgements}
-\input{pages/abstract}
+%\input{pages/title}
+%\input{pages/disclaimer}
+%\input{pages/acknowledgements}
+%\input{pages/abstract}
 \microtypesetup{protrusion=false}
-\tableofcontents{}
+%\tableofcontents{}
 \microtypesetup{protrusion=true}
 
 \mainmatter{}
 
-\input{chapters/01_introduction}
-
+%\input{chapters/01_introduction}
+\input{chapters/02_SparseGrids}
+\input{chapters/03_Regularization}
 \appendix{}
 
 \microtypesetup{protrusion=false}
-\listoffigures{}
-\listoftables{}
+%\listoffigures{}
+%\listoftables{}
 \microtypesetup{protrusion=true}
 \printbibliography{}
 
