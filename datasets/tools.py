@@ -197,3 +197,9 @@ def transform_cox(df, lambdas):
         data_trans = stats.boxcox(df[variable] + 10e-1)
         df[variable] = scaler.fit_transform(data_trans[0])
     return df
+
+def get_r_squared(learner, X, y):
+    mse = -learner.score(X,y)
+    ss_reg = mse * y.size
+    ss_tot = np.var(y) * y.size
+    return 1 - ss_reg/ss_tot
