@@ -8,12 +8,12 @@ In this chapter we are going to compare multiple choices and evaluate their effe
 \section{Tikhonov Regularization}
 We define Tikhonov regularization as 
 \begin{equation}
-\mathcal{S} = \Vert L\bm{\alpha} \Vert_2^2.
+\mathcal{S} = \Vert \Gamma \bm{\alpha} \Vert_2^2.
 \end{equation}
-In this equation \(L\) is a linear operator
+In this equation \(\Gamma\) is a linear operator
 and \(\Vert x \Vert_2^2 = \sum_x x^2\) is the L2 vector norm.
 
-A common choice for \(L\) is the identity matrix as proposed in \cite{SpatAdaptGrid}.
+A common choice for \(\Gamma\) is the identity matrix as proposed in \cite{SpatAdaptGrid}.
 From a Bayesian perspective this construction resembles a Gaussian prior on the weights with mean 0 and
 a constant variance and is therefore distributed as follows
 \begin{equation}
@@ -25,11 +25,11 @@ We construct an alternative matrix as follows:
 \begin{align}
   \label{eq:diagonalMatrix}
 k & = \vert l \vert_1 - d + 1 \\
-\bm{L}_{i,i} & = \vert ^1_4\vert^{k-1}.
+\bm{\Gamma}_{i,i} & = \vert ^1_4\vert^{k-1}.
 \end{align}
 This construction originates from ???.
 
-\section{Different regularization methods: Lasso and Elastic net}
+\section{Lasso and Elastic net}
 We can use lasso regression to replace our regularisation operator with 
 \begin{equation}
 \mathcal{S} = \Vert \bm{\alpha} \Vert_1,
@@ -44,33 +44,7 @@ optimization methods which rely on the existence of the gradient such as
 conjugated gradients.
 We must use a proximal gradient method, for example FISTA.
 
-An efficient iterative solver is the fast iterative shrinkage thresholding
-algorithm(FISTA) that was introduced in \cite{fista}.
-It is an improved version of the ISTA algorithm, that suffered from ???
-convergence.
-
-The algorithm is able to minimize functions that we can express as a sum of a
-convex, \(\beta\) smooth function \(f\) and another simple convex function
-\(g\):
-%todo: either cite trends in conv. opt. for beta smooth, or find in fista paper
-\begin{equation}
-\min_x f(x) + g(x). 
-\end{equation}
-We can split our lasso regression problem trivially.
-The sum of quadratic error loss function and the 1-vector norm are convex, the
-former mentioned function is also smooth. 
-We can now set
-\begin{align*}
-f(x) & = \text{Error function here!} \\ 
-g(x) & = \Vert \bm{\alpha} \Vert_1.
-\end{align*}
-It's important to note that we assume that \(g\) is a simple function, which is
-certainly true in our case.
-
-It is also possible to use both Lasso and L2-regression at the same time, this is called elastic net regression.
-
-The goal is to implement lasso and elastic net regression and to test the
-quality of the results.
+\input{chapters/regularization_fista}
 %%% Local Variables:
 %%% mode: latex
 %%% TeX-master: "../main"

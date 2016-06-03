@@ -1,5 +1,7 @@
 \PassOptionsToPackage{table,svgnames,dvipsnames}{xcolor}
 
+\setbinding{.75in}
+\chapterstyle{companion}
 \usepackage[utf8]{inputenc}
 \usepackage[T1]{fontenc}
 \usepackage[sc]{mathpazo}
@@ -15,32 +17,39 @@
   minnames=3,
   maxbibnames=99,
   firstinits,
-  uniquename=init]{biblatex} % TODO: adapt citation style
+  uniquename=init]{biblatex}
 
 \DefineBibliographyStrings{english}{%
   backrefpage = {see p.},
   backrefpages = {see pp.}
 }
 \usepackage{graphicx}
-\usepackage{scrhack} % necessary for listings package
-\usepackage{listings}
-\usepackage{lstautogobble}
+\usepackage[prependcaption, textsize=tiny]{todonotes}
+%\usepackage{scrhack} % necessary for listings package
+%\usepackage{listings}
+%\usepackage{lstautogobble}
 \usepackage{tikz}
 \usepackage{pgfplots}
 \usepackage{pgfplotstable}
 \usepackage{booktabs}
 \usepackage[final]{microtype}
 \usepackage{caption}
-\usepackage[linkcolor=red, colorlinks=true]{hyperref} % hidelinks removes colored boxes around references and links
 \usepackage{bm}
 \usepackage{amsmath}
 \usepackage{amsfonts}
 \usepackage{amssymb}
 
-\bibliography{bibliography}
+% -------------- Algorithms --------------
+\usepackage{algorithm,algorithmicx}
+\usepackage[noend]{algpseudocode}\bibliography{bibliography}
 
-\setkomafont{disposition}{\normalfont\bfseries} % use serif font for headings
-\linespread{1.05} % adjust line spread for mathpazo font
+\newcommand*\Let[2]{\State #1 \(\gets\) #2}
+\algrenewcommand\algorithmicrequire{\textbf{Input: }}
+
+\newcommand{\prox}[3][]{
+\text{prox}_{\text{#1}} (#2, #3)  
+}
+\DeclareMathOperator{\sign}{sgn}
 
 % Settings for pgfplots
 \pgfplotsset{compat=1.9} % TODO: adjust to your installed version
@@ -49,16 +58,10 @@
   cycle list={CornflowerBlue\\Dandelion\\ForestGreen\\BrickRed\\},
 }
 
-% Settings for lstlistings
-\lstset{%
-  basicstyle=\ttfamily,
-  columns=fullflexible,
-  autogobble,
-  keywordstyle=\bfseries\color{MediumBlue},
-  stringstyle=\color{DarkGreen}
-}
+\usepackage[linkcolor=red, colorlinks=true]{hyperref}
+\providecommand{\algorithmname}{algorithm}
 
 %%% Local Variables:
-%%% mode: plain-tex
+%%% mode: latex
 %%% TeX-master: "main"
 %%% End:

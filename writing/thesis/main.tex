@@ -1,8 +1,5 @@
 \RequirePackage[l2tabu,orthodox]{nag}
-
-% TODO: decide if one-sided/two-sided
-%\documentclass[headsepline,footsepline,footinclude=false,fontsize=11pt,paper=a4,listof=totoc,bibliography=totoc,BCOR=12mm,DIV=12]{scrbook} % two-sided
-\documentclass[headsepline,footsepline,footinclude=false,oneside,fontsize=11pt,paper=a4,listof=totoc,bibliography=totoc]{scrbook} % one-sided
+\documentclass[11pt, a4paper]{memoir}
 
 \input{settings}
 
@@ -38,10 +35,10 @@
 
 \mainmatter{}
 
-%\input{chapters/01_introduction}
-\input{chapters/02_SparseGrids}
-\input{chapters/03_Regularization}
-\appendix{}
+%\input{chapters/introduction}
+\input{chapters/sparseGrids}
+\input{chapters/regularization}
+%\appendix{}
 
 \microtypesetup{protrusion=false}
 %\listoffigures{}

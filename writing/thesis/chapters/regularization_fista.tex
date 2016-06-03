@@ -1,0 +1,108 @@
+% !TeX root = ../main.tex
+
+\subsection{FISTA}
+An efficient iterative solver is the fast iterative shrinkage thresholding
+algorithm(FISTA) that was introduced in \cite{fista}.
+
+FISTA is able to minimize functions that we can express as a sum of a
+convex, \(\beta\) smooth function \(f\) and another simple convex function
+\(g\):  \todo{Check conditions, and cite relevant paper!}
+
+\begin{equation}
+\min_x f(x) + g(x). 
+\end{equation}
+
+It is required that the function \(f(x)\) has a Lipschitz-continous gradient. 
+This means, that the following condition has to be valid for all possible
+vectors \(\bm{x}\) and \(\bm{y}\) for constants \(L\):
+
+\begin{equation}   \label{eq:lipschitz}
+ \Vert \nabla f(\bm{x}) - \nabla f(\bm{y}) \Vert \leq L \Vert \bm{x} - \bm{y} \Vert.
+\end{equation}
+We call the smallest value of \(L\) the Lipschitz constant.
+
+In our case we set \(f\) to
+\begin{equation*}
+ f(\alpha) = \left\Vert  \bm{\Phi} \bm{\alpha} - \bm{y}   \right\Vert_2^2.
+\end{equation*}
+The gradient of \(f\) is then given by
+\begin{equation*}
+  \nabla f(\alpha) = \bm{\Phi}^\intercal (\bm{\Phi} \bm{\alpha} - \bm{y}).
+\end{equation*}
+
+This constant is used to determine the stepsize for our algorithm:
+\begin{equation*}
+ s = 1/L. 
+\end{equation*}
+We now need to find a function that can be used to minimize \(g\).
+This is done using the so called proximal operator, defined by
+
+\begin{equation}
+  \label{eq:proximal}
+  \text{prox} = \text{argmin} \quad \text{...}.
+\end{equation}
+\marginpar{Those operators are evaluated term wise. This is called splitting.}
+In the most general case this would imply the need to solve a convex
+optimization problem.
+For many functions we can find closed form solutions for the proximal operator.
+If we don't use an regularization operator we can use the function \(g = 0\) as
+our smoothness term.
+In this case the proximal operator is trivial, it is given by the identity
+function
+\begin{equation*}
+ \prox[id]{\bm{x}}{\lambda} = 0
+\end{equation*}
+
+\begin{algorithm}
+ \caption{Iterative Shrinkage Tresholding Algorithm} \label{alg:ista} 
+ \begin{algorithmic}[1]
+   \Require{Lipschitz constant \(L\) of \(\nabla f\), regularization parameter \(\lambda\)}
+    \Statex
+    \Function{ISTA}{$L, \bm{x}$} \Comment{\(\bm{x}\) is an initial guess}
+      \Let{\(s\)}{\(1/L\)}
+      \While{not converged}
+        \Let{$\bm{x}$}{$\prox{\bm{x}- s \cdot \nabla f (\bm{x})}{\lambda s}$}
+      \EndWhile
+     \State \Return{\(\bm{x}\)}
+    \EndFunction
+\end{algorithmic}
+\end{algorithm}
+
+Now we can finally give a first iterative solver given by algorithm 1.
+For our trivial proximal operator this iterative schmeme is identical to the
+standard gradient descent algorithm.
+
+We are of course not satisfied with this, we need a scheme for different
+smoothness terms. 
+To avoid tedious, albeit simple calculations, we present the proximal operators
+for more complicated regularization methods here:
+\begin{align}
+ \prox[L1]{x}{\lambda} &= \max (\vert x \vert - \lambda,0) \cdot \sign x.
+\end{align}
+Those terms are taken from the survey paper TODO.
+
+If we set the regularization parameter \(\lambda\) equal to zero, we recover
+the gradient step.
+
+The \autoref{alg:ista} only has a linear convergence. 
+To overcome this problem, Beck et al combined this proximal iteration procedure
+with the accelerated gradient descent algorithm due to Nesterov. 
+This augmented algorithm archives quadratic convergence and is called FISTA.
+
+Both algorithm need the Lipschitz constant of the gradient as an input
+parameter.
+In our case, we could calculate it, it corresponds to largest eigenvalue of 
+\(A^\intercal A\).
+Although mathematically this corresponds to a closed form solution, it is quite
+hard to calculate in practice.
+
+This is why we use a simple line search to find the smallest timestep for which
+the algorithm works. 
+Estimating a larger value of \(L\) corresponds to a smaller stepsize.
+The algorithm still converges, but is slower.
+
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: "../main"
+%%% End:
