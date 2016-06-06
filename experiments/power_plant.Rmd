@@ -1,0 +1,73 @@
+---
+title: "power_plant"
+author: "Lukas Krenz"
+date: "June 6, 2016"
+output: html_document
+---
+
+#Load libraries
+
+```{r, quietly=T, message=F, warning=F}
+library(RSQLite)
+library(ggplot2)
+library(dplyr)
+library(knitr)
+library(scales)
+```
+#Load experiment data & settings
+```{r}
+driver <- dbDriver("SQLite")
+con <- dbConnect(drv=driver, dbname="results.db")
+#Experiment 3: T=0, Experiment 4: T=0.5
+df <- dbGetQuery(con, "SELECT * FROM results NATURAL JOIN regularization_configs WHERE experiment_id = 4")
+settings <- dbGetQuery(con, paste("SELECT grid.type as grid_type, grid.level as grid_level, grid.T as grid_T, num_refinements, solv.max_iterations, solv.epsilon, dataset, reg.type",
+"FROM results as res",
+"NATURAL JOIN grid_configs as grid",
+"NATURAL JOIN adaptivity_configs",
+"JOIN solver_configs as solv",
+"ON res.solver_config_id = solv.solver_config_id",
+"NATURAL JOIN experiments",
+"JOIN regularization_configs AS reg",
+"ON res.regularization_config_id = reg.regularization_config_id",
+"WHERE experiment_id = 4",
+"LIMIT 1"))
+```
+
+#Settings
+We use the following settings:
+```{r}
+settings %>% kable()
+```
+
+#Analysis
+The best results for each exponent base were
+```{r}
+df %>% group_by(exponent_base) %>% summarise(best_cv=min(validation_mse)) %>% kable()
+```
+
+The best result in general was 
+```{r}
+df %>% filter(!is.na(test_mse)) %>% select(one_of(c("train_mse", "test_mse", "train_r2", "test_r2"))) %>% kable()
+```
+
+The results for each exponent base:
+
+```{r, message=F, warning=F, quietly=T}
+#https://stackoverflow.com/questions/11053899/how-to-get-a-reversed-log10-scale-in-ggplot2
+reverselog_trans <- function(base = exp(1)) {
+    trans <- function(x) -log(x, base)
+    inv <- function(x) base^(-x)
+    trans_new(paste0("reverselog-", format(base)), trans, inv, 
+              log_breaks(base = base), 
+              domain = c(1e-100, Inf))
+}
+
+df %>% 
+  ggplot() + aes(x=lambda_reg, y=validation_mse, color = factor(exponent_base)) + geom_point() + 
+  scale_x_continuous(trans=reverselog_trans(10)) + scale_y_log10() + xlab("λ") + ylab("CV-MSE") + ggtitle("Mean error for different λ")
+```
+
+#Cleanup
+```{r, quietly=T}
+dbDisconnect(con)
+```

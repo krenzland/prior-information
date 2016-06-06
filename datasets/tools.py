@@ -30,32 +30,40 @@ def to_data_matrix(arr):
 
 # http://scikit-learn.org/stable/developers/contributing.html#rolling-your-own-estimator
 class SGRegressionLearner(sklearn.base.BaseEstimator, sklearn.base.RegressorMixin):
-    def __init__(self, lambdaReg=0.01, T = 0.0, typeReg=2, level=3):
-        self.lambdaReg = lambdaReg
-        self.typeReg = typeReg
-        self.T = T
-        self.level = level
+    def __init__(self, grid_config, regularization_config, solver_config, adaptivity_config):
+        self.grid_config = grid_config
+        self.regularization_config = regularization_config
+        self.solver_config = solver_config
+        self.adaptivity_config = adaptivity_config
 
     def fit(self, X, y):
         grid_config = RegularGridConfiguration()
         grid_config.dim_ = X.shape[1]
-        grid_config.level_ = self.level
-        grid_config.type_ = 6 # ModLinear
-        grid_config.t_ = self.T
+        grid_config.level_ = self.grid_config.level
+        grid_config.type_ = self.grid_config.type #6 = ModLinear
+        grid_config.t_ = self.grid_config.T
 
         adaptivity_config = AdpativityConfiguration()
-        adaptivity_config.noPoints_ = 0
-        adaptivity_config.numRefinements_ = 0
+        adaptivity_config.numRefinements_ = self.adaptivity_config.num_refinements
+        if adaptivity_config.numRefinements_ == 0:
+            adaptivity_config.noPoints_ = 0
+            adaptivity_config.percent_ = 0
+            adaptivity_config.treshold_ = 0
+        else:
+            adaptivity_config.noPoints_ = self.adaptivity_config.no_points
+            adaptivity_config.percent_ = self.adaptivity_config.percent
+            adaptivity_config.treshold_ = self.adaptivity_config.treshold
 
         solver_config = SLESolverConfiguration()
-        solver_config.type_ = 0 # CG
-        solver_config.maxIterations_ = 500
-        solver_config.eps_ = 1e-6
+        solver_config.type_ = self.solver_config.type
+        solver_config.maxIterations_ = self.solver_config.max_iterations
+        solver_config.eps_ = self.solver_config.epsilon
 
         regularization_config = RegularizationConfiguration()
-        regularization_config.exponentBase_ = 0.25
-        regularization_config.regType_ = self.typeReg # diagonal = 2
-        regularization_config.lambda_ = self.lambdaReg
+        regularization_config.exponentBase_ = self.regularization_config.exponent_base
+        regularization_config.regType_ = self.regularization_config.type
+        regularization_config.lambda_ = self.regularization_config.lambda_reg
+
         self._learner = RegressionLearner(grid_config, adaptivity_config, solver_config, regularization_config)
 
         X_mat = to_data_matrix(X)
