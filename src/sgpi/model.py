@@ -66,6 +66,9 @@ class Result(Base):
     test_mse = Column(Float, nullable=True)
     train_r2 = Column(Float, nullable=True)
     test_r2 = Column(Float, nullable=True)
+    validation_grid_points_mean = Column(Float, nullable=True)
+    validation_grid_points_stdev = Column(Float, nullable=True)
+    train_grid_points = Column(Float, nullable=True)
 
     grid_config_id = Column(Integer, ForeignKey('grid_configs.grid_config_id'))
     grid_config = relationship(GridConfig, backref=backref('results', uselist=True))
@@ -86,7 +89,9 @@ class Result(Base):
     experiment = relationship(Experiment, backref=backref('results', uselist=True))
 
 def make_session():
-    engine = create_engine('sqlite:///results.db')
+    package_dir= os.path.dirname(os.path.abspath(__file__))
+    path = os.path.abspath(os.path.join(package_dir, '../../experiments/results.db'))
+    engine = create_engine('sqlite:///' + path)
     Base.metadata.create_all(engine)
     Base.metadata.bind = engine
     DBSession = sessionmaker(bind=engine)
