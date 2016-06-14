@@ -175,3 +175,6 @@ TSWLatexianTemp*
 
 # KBibTeX
 *~[0-9]*
+.db
+.Rproj.user
+*.pyc
