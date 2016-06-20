@@ -1,10 +1,11 @@
 from collections import namedtuple
-from operator import itemgetter
+import numpy as np; np.random.seed(42)
 from sklearn.externals.joblib import Parallel, delayed
 from sklearn.base import clone
 from sklearn.linear_model import Ridge, ElasticNet
 from sklearn.cross_validation import ShuffleSplit
 from sklearn.grid_search import ParameterGrid
+from .learner import SGRegressionLearner
 
 Grid_score = namedtuple('Grid_score', 'parameters mean_validation_score cv_validation_scores cv_grid_sizes')
 
@@ -35,14 +36,15 @@ class GridSearch:
         self.base_estimator_ = clone(estimator)
         if not isinstance(param_grid, ParameterGrid):
             param_grid = ParameterGrid(param_grid)
-        self.param_grid_ = param_grid
+
+            self.param_grid_ = param_grid
         self.cv_ = cv
 
     def fit(self, X, y):
         base_estimator = clone(self.base_estimator_)
         self.grid_scores_ = Parallel(
-                n_jobs=3, verbose=2,
-                pre_dispatch=2
+                n_jobs=-2, verbose=2,
+                pre_dispatch=3
              )(
                 delayed(evaluate)(clone(self.base_estimator_), params, self.cv_, X, y)
                     for params in self.param_grid_)

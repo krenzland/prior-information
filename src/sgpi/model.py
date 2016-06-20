@@ -59,7 +59,7 @@ class RegularizationConfig(Base):
 
 class Result(Base):
     __tablename__ = 'results'
-    result_id = Column(Integer, primary_key=True)
+    result_id = Column(Integer, primary_key=True, autoincrement=True)
 
     validation_mse = Column(Float, nullable=False)
     train_mse = Column(Float, nullable=True)

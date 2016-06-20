@@ -71,7 +71,8 @@ def get_dataset(name):
     package_directory = os.path.dirname(os.path.abspath(__file__))
     datasets = {
         'concrete': 'concrete/concrete_prep.csv',
-        'power_plant': 'power_plant/power_plant_prep.csv'
+        'power_plant': 'power_plant/power_plant_prep.csv',
+        'yeast': "yeast/yeast_prep.csv"
     }
     folder = os.path.join(package_directory, '../../datasets/processed/')
     path = os.path.join(folder, datasets[name])
@@ -79,5 +80,5 @@ def get_dataset(name):
 
 def get_xy(data):
     X = np.array(data.ix[:,0:-1])
-    y = data.ix[:,-1]
+    y = (data.ix[:,-1]).values
     return X,y
