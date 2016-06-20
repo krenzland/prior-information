@@ -1,12 +1,13 @@
 \PassOptionsToPackage{table,svgnames,dvipsnames}{xcolor}
-
-\setbinding{.75in}
-\chapterstyle{companion}
 \usepackage[utf8]{inputenc}
 \usepackage[T1]{fontenc}
+
 \usepackage[sc]{mathpazo}
+\usepackage[euler-digits,small]{eulervm}
+\setkomafont{disposition}{\normalfont\bfseries}
+
 \usepackage[american]{babel}
-\usepackage[autostyle]{csquotes}
+\usepackage[autostyle, english = american]{csquotes}
 \usepackage[%
   backend=biber,
   url=false,
@@ -18,38 +19,47 @@
   maxbibnames=99,
   firstinits,
   uniquename=init]{biblatex}
-
 \DefineBibliographyStrings{english}{%
   backrefpage = {see p.},
   backrefpages = {see pp.}
 }
+\bibliography{bibliography}
+
 \usepackage{graphicx}
+\graphicspath{ {./figures/} }
 \usepackage[prependcaption, textsize=tiny]{todonotes}
-%\usepackage{scrhack} % necessary for listings package
-%\usepackage{listings}
-%\usepackage{lstautogobble}
 \usepackage{tikz}
 \usepackage{pgfplots}
 \usepackage{pgfplotstable}
 \usepackage{booktabs}
+\usepackage{xspace}
 \usepackage[final]{microtype}
 \usepackage{caption}
 \usepackage{bm}
+\usepackage{tocstyle}\usetocstyle{noonewithdot}
+%\usepackage{array}
 \usepackage{amsmath}
 \usepackage{amsfonts}
 \usepackage{amssymb}
+\usepackage{mathtools} % for \mathclap
+\usepackage{nicefrac}
 
 % -------------- Algorithms --------------
 \usepackage{algorithm,algorithmicx}
-\usepackage[noend]{algpseudocode}\bibliography{bibliography}
+\usepackage[noend]{algpseudocode}
 
 \newcommand*\Let[2]{\State #1 \(\gets\) #2}
 \algrenewcommand\algorithmicrequire{\textbf{Input: }}
+\algdef{SE}[DOWHILE]{Do}{doWhile}{\algorithmicdo}[1]{\algorithmicwhile\ #1}
 
 \newcommand{\prox}[3][]{
-\text{prox}_{\text{#1}} (#2, #3)  
+\textbf{prox}_{\text{#1}} (#2, #3)  
 }
 \DeclareMathOperator{\sign}{sgn}
+\DeclareMathOperator*{\argmin}{argmin}
+
+\newcommand\fista{\textsc{fista}\xspace}
+\newcommand\ista{\textsc{ista}\xspace}
 
 % Settings for pgfplots
 \pgfplotsset{compat=1.9} % TODO: adjust to your installed version
