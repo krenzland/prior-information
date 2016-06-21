@@ -58,7 +58,7 @@ def transform_cox(df, lambdas):
         if lamb == 1:
             continue; # identity transform
         data_trans = stats.boxcox(df[variable] + 10e-1)
-        df[variable] = scaler.fit_transform(data_trans[0])
+        df[variable] = scaler.fit_transform(np.array(data_trans[0]).reshape(-1, 1))
     return df
 
 def get_r_squared(learner, X, y):

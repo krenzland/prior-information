@@ -36,6 +36,7 @@ main() {
     yeast_csv
     ./yeast.py "$res_dir"
     shuttle_csv
+    ./abalone.py "$dir"
 
 }
 
