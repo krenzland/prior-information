@@ -15,12 +15,15 @@ def main():
              'viscera_weight', 'shell_weight', 'rings']
     df = pd.read_csv('../datasets/raw/abalone/abalone.data.txt', names=names)
     df = pd.get_dummies(df)
+    cols = ['length', 'diameter', 'height', 'whole_weight', 'shucked_weight',
+            'viscera_weight', 'shell_weight', 'sex_F', 'sex_I', 'sex_M', 'rings']
+    df = df[cols] # reorder columns after dummies, target is always last!
+    df = df[cols]
     _, df = scale(df)
 
     lambdas = { 'diameter': 3.2163821798943193,
                 'height': -1.9914054656190996,
                 'length': 3.3648670820916347,
-                'rings': -2.4427100995240263,
                 'sex_F': 1,
                 'sex_I': 1,
                 'sex_M': 1,
