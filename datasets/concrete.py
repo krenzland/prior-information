@@ -1,6 +1,9 @@
 #!/usr/bin/env python
+import sys
+sys.path.append("../src/")
 
-from tools import *
+from sgpi.util import scale, transform_cox
+import pandas as pd
 
 def main():
     dir = sys.argv[1]
@@ -11,7 +14,8 @@ def main():
 
     names = ["cement", "blast_slag", "fly_ash", "water", "superplasticizer", "coarse_aggregate", "fine_aggregate",
             "age", "compressive_strength"]
-    df = pd.read_excel(input, names=names)
+    df = pd.read_excel(input)
+    df.columns = names # read_excel ignores name parameter?
 
     _, df = scale(df)
     lambdas = {'age': -7.2461323674095635,

@@ -1,6 +1,9 @@
 #!/usr/bin/env python
 
-from tools import *
+import sys
+sys.path.append("../src/")
+from sgpi.util import scale, transform_cox
+import pandas as pd
 
 def main():
     dir = sys.argv[1]
