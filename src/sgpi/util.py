@@ -73,7 +73,10 @@ def get_dataset(name):
         'concrete': 'concrete/concrete_prep.csv',
         'power_plant': 'power_plant/power_plant_prep.csv',
         'yeast': 'yeast/yeast_prep.csv',
-        'abalone': 'abalone/abalone_prep.csv'
+        'abalone': 'abalone/abalone_prep.csv',
+        'diag_test_1_noise': 'diagonal_test/diag_test_1_noise.csv',
+        'diag_test_10_noise': 'diagonal_test/diag_test_10_noise.csv',
+        'diag_test_50_noise': 'diagonal_test/diag_test_50_noise.csv'
     }
     folder = os.path.join(package_directory, '../../datasets/processed/')
     path = os.path.join(folder, datasets[name])
