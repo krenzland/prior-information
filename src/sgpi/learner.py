@@ -66,3 +66,6 @@ class SGRegressionLearner(sklearn.base.BaseEstimator, sklearn.base.RegressorMixi
 
     def get_grid_size(self):
         return self._learner.getGridSize()
+
+    def get_weights(self):
+        return self._learner.getWeights().array()
