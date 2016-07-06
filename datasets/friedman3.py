@@ -1,45 +1,28 @@
 #!/usr/bin/env python
 from __future__ import print_function
+import sys
+sys.path.append("../src/")
+
 import sklearn.datasets as data
 import sklearn.preprocessing as pre
+
 import numpy as np
+import pandas as pd
 
-def write_friedman_with_seed(filename, n, seed, scaler=None):
-    print("Generating {} \t with {} \t samples and seed {}.".format(filename, n, seed))
-    header = """@RELATION friedmann3
-
-@ATTRIBUTE x1 numeric
-@ATTRIBUTE x2 numeric
-@ATTRIBUTE x3 numeric
-@ATTRIBUTE x4 numeric
-@ATTRIBUTE y numeric
-
-@DATA
-"""
-    (X,Y) = data.make_friedman3(n_samples=n, random_state=seed, noise=0.01)
-    if scaler:
-        # already created a minmax-scaler, use it
-        X = scaler.transform(X)
-    else:
-        # create a new scaler
-        scaler = pre.MinMaxScaler()
-        X = scaler.fit_transform(X)
-    with open(filename, "w") as fp:
-        fp.write(header)
-        for xs, y in zip(X,Y):
-            row = ",".join([str(x) for x in xs]) + "," + str(y)
-            fp.write("{}\n".format(row))
-    return scaler
+from sgpi.util import scale, transform_cox
 
 def main():
-    #  note: to generate comparable files, use seed 123456 for training, 234567 for testing, and 345678 for validation
-    nSamples = 10000
-    basename = "../SGpp/datadriven/tests/data/friedman3_10k_"
-    files = [("train", 123456), ("validation", 345678), ("testing", 234567)]
-    scaler = None
-    for (name, seed) in files:
-        filename = basename + name + ".arff"
-        scaler = write_friedman_with_seed(filename, nSamples, seed, scaler)
+    dir = sys.argv[1]
+    output_csv = dir + '/friedman3/friedman3_prep.csv'
+    names = ["x1", "x2", "x3", "x4", "y"]
+
+    (X,y) = data.make_friedman3(n_samples=10000, random_state=123456, noise=0.01)
+    y = np.matrix(y).T
+    df = pd.DataFrame(np.append(X, y, axis=1), columns=names)
+    df = scale(df)[1]
+
+    # TODO Transform box-cox.
+    df.to_csv(output_csv, index=False)
 
 if __name__ == "__main__":
     main()

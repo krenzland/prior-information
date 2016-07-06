@@ -26,10 +26,10 @@ EOF
 
 main() {
     # https://stackoverflow.com/questions/59895/can-a-bash-script-tell-what-directory-its-stored-in
-    dir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+    local dir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
     cd "$dir"
-    raw_dir="$dir/raw"
-    res_dir="$dir/processed"
+    local raw_dir="$dir/raw"
+    local res_dir="$dir/processed"
 
     ./power_plant.py "$dir"
     ./concrete.py "$dir"
@@ -37,6 +37,7 @@ main() {
     ./yeast.py "$res_dir"
     shuttle_csv
     ./abalone.py "$dir"
+    ./friedman3.py "$res_dir"
 
 }
 
