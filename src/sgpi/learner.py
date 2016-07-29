@@ -35,6 +35,7 @@ class SGRegressionLearner(sklearn.base.BaseEstimator, sklearn.base.RegressorMixi
         solver_config.type_ = self.solver_config.type
         solver_config.maxIterations_ = self.solver_config.max_iterations
         solver_config.eps_ = self.solver_config.epsilon
+        solver_config.treshold_ = self.solver_config.treshold
 
         final_solver_config = SLESolverConfiguration()
         final_solver_config.type_ = self.final_solver_config.type

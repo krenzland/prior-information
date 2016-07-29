@@ -35,6 +35,7 @@ class SolverConfig(Base):
     type = Column(Integer, nullable=False)
     max_iterations = Column(Integer, nullable=False)
     epsilon = Column(Float, nullable=False)
+    treshold = Column(Float, nullable=False, server_default=0.0)
 
 class RegularizationConfig(Base):
     __tablename__ = 'regularization_configs'
