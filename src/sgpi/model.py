@@ -35,7 +35,7 @@ class SolverConfig(Base):
     type = Column(Integer, nullable=False)
     max_iterations = Column(Integer, nullable=False)
     epsilon = Column(Float, nullable=False)
-    treshold = Column(Float, nullable=False, server_default=0.0)
+    treshold = Column(Float, nullable=False)
 
 class RegularizationConfig(Base):
     __tablename__ = 'regularization_configs'
@@ -43,6 +43,7 @@ class RegularizationConfig(Base):
 
     lambda_reg = Column(Float, nullable=False)
     exponent_base = Column(Float, nullable=True)
+    l1_ratio = Column(Float, nullable=True)
     type = Column(Integer, nullable=False)
 
     def set_params(self, **params):
