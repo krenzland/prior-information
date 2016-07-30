@@ -35,7 +35,7 @@ class SolverConfig(Base):
     type = Column(Integer, nullable=False)
     max_iterations = Column(Integer, nullable=False)
     epsilon = Column(Float, nullable=False)
-    treshold = Column(Float, nullable=False)
+    threshold = Column(Float, nullable=False)
 
 class RegularizationConfig(Base):
     __tablename__ = 'regularization_configs'
@@ -53,11 +53,14 @@ class RegularizationConfig(Base):
             self.exponent_base = params['exponent_base']
         if 'type' in params:
             self.type = params['type']
+        if 'l1_ratio' in params:
+            self.l1_ratio = params['l1_ratio']
 
     def get_params(self, deep=True):
         return {'lambda_reg': self.lambda_reg,
                 'exponent_base': self.exponent_base,
-                'type': self.type}
+                'type': self.type,
+                'l1_ratio': self.l1_ratio}
 
 class Result(Base):
     __tablename__ = 'results'
