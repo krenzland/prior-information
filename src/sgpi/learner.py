@@ -25,27 +25,29 @@ class SGRegressionLearner(sklearn.base.BaseEstimator, sklearn.base.RegressorMixi
         if adaptivity_config.numRefinements_ == 0:
             adaptivity_config.noPoints_ = 0
             adaptivity_config.percent_ = 0
-            adaptivity_config.treshold_ = 0
+            adaptivity_config.threshold_ = 0
         else:
             adaptivity_config.noPoints_ = self.adaptivity_config.no_points
             adaptivity_config.percent_ = self.adaptivity_config.percent
-            adaptivity_config.treshold_ = self.adaptivity_config.treshold
+            adaptivity_config.threshold_ = self.adaptivity_config.treshold
 
         solver_config = SLESolverConfiguration()
         solver_config.type_ = self.solver_config.type
         solver_config.maxIterations_ = self.solver_config.max_iterations
         solver_config.eps_ = self.solver_config.epsilon
-        solver_config.treshold_ = self.solver_config.treshold
+        solver_config.threshold_ = self.solver_config.threshold
 
         final_solver_config = SLESolverConfiguration()
         final_solver_config.type_ = self.final_solver_config.type
         final_solver_config.maxIterations_ = self.final_solver_config.max_iterations
         final_solver_config.eps_ = self.final_solver_config.epsilon
+        final_solver_config.threshold_ = self.solver_config.threshold
 
         regularization_config = RegularizationConfiguration()
         regularization_config.exponentBase_ = self.regularization_config.exponent_base
         regularization_config.regType_ = self.regularization_config.type
         regularization_config.lambda_ = self.regularization_config.lambda_reg
+        regularization_config.l1Ratio_ = self.regularization_config.l1_ratio
 
         self._learner = RegressionLearner(grid_config, adaptivity_config, solver_config, final_solver_config,
                                           regularization_config)
