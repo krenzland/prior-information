@@ -2,9 +2,11 @@
 \usepackage[utf8]{inputenc}
 \usepackage[T1]{fontenc}
 
-\usepackage[sc]{mathpazo}
+\usepackage[sc, osf]{mathpazo}
+\linespread{1.025}
 \usepackage[euler-digits,small]{eulervm}
 \setkomafont{disposition}{\normalfont\bfseries}
+\frenchspacing
 
 \usepackage[american]{babel}
 \usepackage[autostyle, english = american]{csquotes}
@@ -23,7 +25,7 @@
   backrefpage = {see p.},
   backrefpages = {see pp.}
 }
-\bibliography{bibliography}
+\addbibresource{bibliography.bib}
 
 \usepackage{graphicx}
 \graphicspath{ {./figures/} }
@@ -33,16 +35,18 @@
 \usepackage{pgfplotstable}
 \usepackage{booktabs}
 \usepackage{xspace}
-\usepackage[final]{microtype}
+\usepackage[final,tracking=smallcaps,expansion=alltext, protrusion=true]{microtype}
+\SetTracking{encoding=*, shape=sc}{50} %latex & friends, page 52
 \usepackage{caption}
 \usepackage{bm}
-\usepackage{tocstyle}\usetocstyle{noonewithdot}
+%\usepackage{tocstyle}\usetocstyle{noonewithdot}
 %\usepackage{array}
 \usepackage{amsmath}
 \usepackage{amsfonts}
 \usepackage{amssymb}
 \usepackage{mathtools} % for \mathclap
 \usepackage{nicefrac}
+\usepackage{calc}
 
 % -------------- Algorithms --------------
 \usepackage{algorithm,algorithmicx}
@@ -52,14 +56,21 @@
 \algrenewcommand\algorithmicrequire{\textbf{Input: }}
 \algdef{SE}[DOWHILE]{Do}{doWhile}{\algorithmicdo}[1]{\algorithmicwhile\ #1}
 
-\newcommand{\prox}[3][]{
-\textbf{prox}_{\text{#1}} (#2, #3)  
-}
+\newcommand{\prox}[3][]{\textbf{prox}_{\text{#1}} (#2, #3)}
 \DeclareMathOperator{\sign}{sgn}
 \DeclareMathOperator*{\argmin}{argmin}
+\DeclareMathOperator{\BigO}{O}
+\DeclareMathOperator{\Exp}{\operatorname{\mathbb{E}}}
+\DeclareMathOperator{\Var}{\operatorname{Var}}
+\DeclareMathOperator{\Bias}{\operatorname{Bias}}
+\newcommand*\from{\colon}
 
+\newcommand\lasso{\textsc{lasso}\xspace}
 \newcommand\fista{\textsc{fista}\xspace}
 \newcommand\ista{\textsc{ista}\xspace}
+
+\newcommand\sidetitle[1]{\marginline{\emph{#1}}}
+
 
 % Settings for pgfplots
 \pgfplotsset{compat=1.9} % TODO: adjust to your installed version
@@ -68,8 +79,44 @@
   cycle list={CornflowerBlue\\Dandelion\\ForestGreen\\BrickRed\\},
 }
 
-\usepackage[linkcolor=red, colorlinks=true]{hyperref}
+\usepackage[%
+  citecolor=Gray,
+  linkcolor=Black, %YellowOrange,
+  colorlinks=true]{hyperref}
 \providecommand{\algorithmname}{algorithm}
+
+
+% -----------------TOC--------------------
+% TODO!
+\usepackage{titletoc}
+\titlecontents{chapter}
+  [0cm]{\bf \raggedleft\parshape 1 1cm \dimexpr\linewidth-3cm\relax}
+  {\contentslabel{1.5em}}{}{\hspace{0.8em}\textbullet\hspace{0.8em}\makebox[1em][l]{\thecontentspage}
+  \\ \noindent\rule{4cm}{0.1pt}}
+
+\titlecontents{section}
+  [0cm]{\scshape \raggedleft \parshape 1 1cm \dimexpr\linewidth-3cm\relax}
+  {\contentslabel{2em}}{}{\hspace{0.8em}\textbullet\hspace{0.8em}\makebox[1em][l]{\thecontentspage}}
+
+\titlecontents{subsection}
+  [0cm]{\it \raggedleft\ \parshape 1 1cm \dimexpr\linewidth-3cm\relax}
+  {\contentslabel{2.5em}}{}{\hspace{0.8em}\textbullet\hspace{0.8em}\makebox[1em][l]{\thecontentspage}}
+
+
+% -----------------Headings-----------------
+% TODO!
+% See https://tex.stackexchange.com/questions/230635/formatting-and-styling-of-headers-using-titlesec-in-scrbook-class
+\colorlet{chaptercolor}{gray!80!black}
+
+\setkomafont{chapter}{\normalfont\color{chaptercolor}\Huge\raggedleft}
+\setkomafont{chapterprefix}{\Large}
+\renewcommand*{\chapterformat}{%
+  \makebox[\linewidth][r]{\MakeUppercase{\chapappifchapterprefix{}}}%
+  \rlap{\enskip\resizebox{!}{1.2cm}{\thechapter} \rule{15cm}{1.2cm}}%
+}
+
+\renewcommand*\chapterheadstartvskip{\vspace{20pt}}
+\renewcommand*\chapterheadendvskip{\vspace{20pt}}
 
 %%% Local Variables:
 %%% mode: latex
