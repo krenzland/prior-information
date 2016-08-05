@@ -79,20 +79,15 @@
   cycle list={CornflowerBlue\\Dandelion\\ForestGreen\\BrickRed\\},
 }
 
-\usepackage[%
-  citecolor=Gray,
-  linkcolor=Black, %YellowOrange,
-  colorlinks=true]{hyperref}
-\providecommand{\algorithmname}{algorithm}
-
 
 % -----------------TOC--------------------
 % TODO!
 \usepackage{titletoc}
+
 \titlecontents{chapter}
   [0cm]{\bf \raggedleft\parshape 1 1cm \dimexpr\linewidth-3cm\relax}
-  {\contentslabel{1.5em}}{}{\hspace{0.8em}\textbullet\hspace{0.8em}\makebox[1em][l]{\thecontentspage}
-  \\ \noindent\rule{4cm}{0.1pt}}
+  {\noindent\rule{4cm}{0.1pt}\\ \contentslabel{1.5em}}{}{\hspace{0.8em}\textbullet\hspace{0.8em}\makebox[1em][l]{\thecontentspage}
+  }
 
 \titlecontents{section}
   [0cm]{\scshape \raggedleft \parshape 1 1cm \dimexpr\linewidth-3cm\relax}
@@ -117,6 +112,15 @@
 
 \renewcommand*\chapterheadstartvskip{\vspace{20pt}}
 \renewcommand*\chapterheadendvskip{\vspace{20pt}}
+
+\usepackage{varioref}
+\usepackage[%
+  citecolor=Gray,
+  linkcolor=Black, %YellowOrange,
+  colorlinks=true]{hyperref}
+\usepackage{hyperref}
+\usepackage{cleveref}
+%\providecommand{\algorithmname}{algorithm}
 
 %%% Local Variables:
 %%% mode: latex
