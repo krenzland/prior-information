@@ -20,6 +20,12 @@ class BayesOptReg(BayesOptContinuous):
         self.parameters['n_iterations'] = n_iter
         self.parameters['n_iter_relearn'] = n_iter_relearn
         self.parameters['n_init_samples'] = n_init_samples
+        self.parameters['noise'] = 1e-10
+        self.parameters['s_name'] = 'sGaussianProcessML'
+        self.parameters['crit_name'] = 'cSum(cLCBa,cEIa)'
+        self.parameters['crit_params'] = [1,1]
+        self.parameters['kernel_name'] = 'kMaternISO3'
+
         self.best_grid_points_ = None
         self.best_mse_ = float('-inf')
 
