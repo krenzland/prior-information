@@ -3,8 +3,13 @@
 from __future__ import print_function
 from scipy import stats
 from sklearn.preprocessing import MinMaxScaler
+
+import numpy as np; np.random.seed(42)
 import matplotlib.pyplot as plt
 import seaborn as sns
+sns.set_style('white')
+sns.set_palette(sns.color_palette('viridis'))
+plt.rcParams['figure.figsize'] = (20, 6)
 
 def plot_cox(name, X, y):
     data_trans = stats.boxcox(X + 10e-1)
