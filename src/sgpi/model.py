@@ -11,6 +11,7 @@ class Experiment(Base):
     __tablename__ = 'experiments'
     experiment_id = Column(Integer, primary_key=True)
     dataset = Column(String(250), nullable=False)
+    cv = Column(String(250), nullable=False)
 
 class GridConfig(Base):
     __tablename__ = 'grid_configs'
