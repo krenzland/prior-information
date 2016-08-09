@@ -10,7 +10,7 @@ import numpy as np
 from operator import itemgetter
 from sacred import Experiment
 from sklearn.base import clone
-from sklearn.cross_validation import ShuffleSplit
+from sklearn.cross_validation import KFold
 ex = Experiment('grid_search')
 
 @ex.config
@@ -48,7 +48,8 @@ def main(level, num, T, dataset, _log):
 
     estimator = SGRegressionLearner(grid_config, regularization_config, solver_config,
                                     final_solver_config, adaptivity_config)
-    cv = ShuffleSplit(X_train.shape[0], n_iter=10, random_state = 42)
+    cv = KFold(X_train.shape[0], n_folds=10)
+    experiment.cv = str(cv)
     lambda_grid = np.logspace(-1, -4, num=num)
     parameters = {'regularization_config__lambda_reg': lambda_grid,
                   'regularization_config__exponent_base': [1, 4]}
