@@ -1,0 +1,78 @@
+\chapter{Datasets}\label{cha:datasets}
+We use different datasets in this thesis.
+In this chapter, we look at all used datasets and document the preprocessing
+steps.
+
+Each feature of each dataset was scaled to the range \([0,1]\) with the so called min-max
+scaler
+\begin{equation*}
+  \operatorname{scale}(\bm{x}) = \frac{\bm{x} - \min({\bm{x}})}{\max{(\bm{x}) - \min(\bm{x})}}.
+\end{equation*}
+
+After that, we perform a Box--Cox transformation for a parameter \(\lambda\):
+\begin{equation*}
+  \operatorname{Box--Cox}(x_i) =
+  \begin{cases}
+    \ln(x_i) & \text{for } \lambda = 0, \\
+    x_i^\lambda - 1 & \text{otherwise}.
+  \end{cases}
+\end{equation*}
+We estimate the best choice for \(\lambda\) using the optimization procedure
+contained in the statistics module of Scipy.
+Note that we need to shift the data before applying this transformation by a
+small positive number, because \(ln(0)\) is undefined.
+The used parameters for each dataset can be found in each section.
+
+\todo{Insert correct values into dataset tables.}
+\todo{Use tabular numbers instead of old-style figures here!}
+We use the following datasets:
+
+\begin{table}[h]
+\begin{tabular}[c]{lrr}
+  \toprule \multicolumn{1}{r}{\textbf{Name}}
+& \multicolumn{1}{r}{\textbf{No.~of predictors}}
+& \multicolumn{1}{r}{\textbf{No.~of instances}}
+\\\midrule
+  Friedman1 & 10 & 10000 \\
+  Concrete & 9 & 1030 \\
+  Power Plant & 4 & 9568 \\
+  Friedman9 & 4  & 200 \\
+  Friedman9 & 4  & 200
+\\\bottomrule
+\end{tabular}
+\caption[List of Datasets]{Datasets used for this thesis.
+  Included is the number of predictors(i.e.~no.~of dimensions) and the number of provided training examples.}
+\end{table}
+
+The datasets that are taken from the UCI Machine Learning Repository~\cite{datasets-uci} are marked
+with a `*'.
+
+\section{Friedman}\label{sec:friedman}
+The Friedman1 dataset is an artifical ten dimensional dataset, which was first
+discussed by Friedman in~\cite{datasets-friedman}.
+It uses ten input variables that are uniformally distributed in \([0,1]\).
+The target variable is computed using
+\begin{equation*}
+ y = 10 \sin(\pi x_1 x_2) + 20(x_3 - 0.5)^2 + 10x_4 + 5x_5 + \varepsilon,
+\end{equation*}
+with \(\varepsilon \sim \mathcal{N}(0,1)\) serving as noise.
+Only the first five variables are useful for prediction, the only inherent
+interaction term is \(x_1 x_2\).
+This makes this dataset useful for the study of automatical feature selection
+--- using regularization techniques such as the lasso or the group lasso ---
+and for interaction-terms aware grid generation.
+
+The distribution of the predictors is convenient, we do not need to normalize
+them.
+
+\section{Concrete}
+The concrete dataset models the compressive strength of concrete using various
+predictors.
+It was first discussed in~\cite{datasets-concrete}.
+
+\section{Power Plant}
+The combined cycle power plant dataset was first discussed in~\cite{datasets-powerplant}.
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: "../main"
+%%% End:
