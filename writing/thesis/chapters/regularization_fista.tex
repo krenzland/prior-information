@@ -76,7 +76,7 @@ To do this, we first define an upper-bound of \(F(\bm{\alpha})\)~(\emph{majorizi
 We first give a regularized linearization of \(f(\bm{\alpha})\) at an arbitrary,
 but fixed point \(\bm{y}\) for an \(L > 0\):
 \begin{equation}\label{eq:f-approx}
-  f'_L(\bm{\alpha}, \bm{y}) = f(\bm{y}) + \left< \bm{\alpha} - \bm{y}, \bm{\nabla} f (\bm{y}) \right> +
+  \hat{f}_L(\bm{\alpha}, \bm{y}) = f(\bm{y}) + \left< \bm{\alpha} - \bm{y}, \bm{\nabla} f (\bm{y}) \right> +
   L/2 \Vert \bm{\alpha} - \bm{y} \Vert_2^2,
 \end{equation}
 where the angle brackets \( \left< \bm{x}, \bm{y} \right> = \bm{y}^\intercal \bm{x} \) represent the inner product.
@@ -133,11 +133,11 @@ Fortunately, closed form solutions for the other needed proximal operators exist
     \left( \prox[\(\lambda \Vert \bm{\alpha} \Vert_1\)]{\bm{\alpha}}{t} \right)_i &= \left[\alpha_i - t \lambda \right]_+
     - \left[ -\alpha_i - t \lambda \right]_+, \\
 \text{for Ridge} \quad &&
-                          \left(  \prox[\( \lambda \Vert \bm{\alpha} \Vert_2^2\)]{\bm{\alpha}}{t} \right)_i &= (\alpha_i/(1 + 2t \lambda)), \\
+                          \left(  \prox[\( \lambda \Vert \bm{\alpha} \Vert_2^2\)]{\bm{\alpha}}{t} \right)_i &= (\alpha_i/(1 + 2t \lambda)), \nonumber\\
   \text{for Elastic Net} \quad && \prox[\( \lambda \Vert \bm{\alpha} \Vert_1 + \gamma \Vert \bm{\alpha} \Vert_2^2\)]{\bm{\alpha}}{t} &=
-                                                                                                                                       \left( 1/(1 + 2 t \gamma) \right) \left(\prox[\(\lambda \Vert \bm{\alpha} \Vert_1\)]{\bm{\alpha}}{t}\right)\\
+                                                                                                                                       \left( 1/(1 + 2 t \gamma) \right) \left(\prox[\(\lambda \Vert \bm{\alpha} \Vert_1\)]{\bm{\alpha}}{t}\right) \nonumber\\
   \text{for Group Lasso} \quad && {\left(\prox[\( \lambda \sum_{p \in \mathcal{P}} \sqrt{\vert p \vert} \Vert p \Vert_2 \)]{\bm{\alpha}}{t} \right)}_p &=
-                                                                                     \left[ 1 - \left(\lambda t \sqrt{\vert p \vert}\right) \left( \Vert p \Vert_2 \right)^{-1} \right]_+ p
+                                                                                     \left[ 1 - \left(\lambda t \sqrt{\vert p \vert}\right) \left( \Vert p \Vert_2 \right)^{-1} \right]_+ p \nonumber
 \end{align}
 where \( \left( x \right)_+ = \max(x, 0) \) denotes the positive part of \(x\)
 and \(t\) is a stepsize.
@@ -158,7 +158,7 @@ the minimizer
     {\left[ -\left(\bm{\alpha^*} - L^{-1} \bm{\nabla} f (\bm{\alpha^*}) \right) - \lambda L^{-1} \right]}_+,
 \end{align*}
 again given as a fixed-point iteration.
-In this equation the function \( \left( x \right)_+ \) is applied element-wise on its input vector.
+In this equation the function \( \left[ x \right]_+ \) is applied element-wise on its input vector.
 We can then use this minimizer with \cref{alg:ista} to compute a solution to
 the Lasso problem.
 The fixed-point equations for the Lasso and Elastic Net Regularization are
@@ -191,7 +191,7 @@ We do this by iterating and finding the smallest \(L\) for which
 This always results in the Lipschitz constant~\cite{fista}.
 It is then straightforward to derive \cref{alg:linesearch}.
 
-\begin{algorithm}[h]
+\begin{algorithm}[h!]
  \caption{Linesearch~\cite{fista}}\label{alg:linesearch}
  \begin{algorithmic}[1]
   \Require{\(L > 0, \eta > 1, \bm{\alpha}\)} 
@@ -224,7 +224,10 @@ We can also integrate the linesearch into the \ista algorithm, by replacing the
 fixed \(L\) with a call to the linesearch subroutine.
 A comparison of the practical speed of \ista and \fista with constant stepsize can be seen in~\cref{fig:fista-convergence}.
 
-\begin{figure}[hT]
+An alternative backtracking scheme for \fista is offered in~\cite{fista-backtracking}.
+It offers the same asymptotic convergence speed, but shows practical improvements for some minimization problems.
+
+\begin{figure}[bt]
   \includegraphics[scale=0.6]{fista}
   \caption[Comparison of \fista and \ista]{Comparison of \fista and \ista, both with constant stepsize.
     The figure shows the training mean squared error for the first 200
