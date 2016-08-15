@@ -11,6 +11,9 @@ from operator import itemgetter
 from sacred import Experiment
 from sklearn.base import clone
 from sklearn.cross_validation import KFold
+
+import pysgpp as sg
+
 ex = Experiment('grid_search')
 
 @ex.config
@@ -33,9 +36,15 @@ def main(level, num, T, dataset, _log):
 
     grid_config = model.GridConfig(type=6, level=level, T=T)
     adaptivity_config = model.AdaptivityConfig(num_refinements=5, no_points=3, treshold=0.0, percent=0.0)
-    solver_config = model.SolverConfig(type=0, max_iterations=50, epsilon=10e-4)
-    final_solver_config = model.SolverConfig(type=0, max_iterations=70, epsilon=10e-4)
-    regularization_config = model.RegularizationConfig(type=2)
+    epsilon = np.sqrt(np.finfo(np.float).eps)
+    solver_type = sg.SLESolverType_CG
+    solver_config = model.SolverConfig(type=solver_type, max_iterations=50, epsilon=epsilon, threshold=10e-5)
+    final_solver_config = model.SolverConfig(type=solver_type, max_iterations=250, epsilon=epsilon, threshold=10e-6)
+    # solver_type = sg.SLESolverType_FISTA
+    # solver_config = model.SolverConfig(type=solver_type, max_iterations=200, epsilon=0.0, threshold=10e-5)
+    # final_solver_config = model.SolverConfig(type=solver_type, max_iterations=400, epsilon=0.0, threshold=10e-6)
+    regularization_type = sg.RegularizationType_Diagonal
+    regularization_config = model.RegularizationConfig(type=regularization_type, l1_ratio=1.0, exponent_base=1.0)
     experiment = model.Experiment(dataset=dataset)
 
     session.add(grid_config)
@@ -50,7 +59,7 @@ def main(level, num, T, dataset, _log):
                                     final_solver_config, adaptivity_config)
     cv = KFold(X_train.shape[0], n_folds=10)
     experiment.cv = str(cv)
-    lambda_grid = np.logspace(-1, -4, num=num)
+    lambda_grid = np.logspace(-1, -5, num=num)
     parameters = {'regularization_config__lambda_reg': lambda_grid,
                   'regularization_config__exponent_base': [1, 4]}
     grid_search = GridSearch(estimator, parameters, cv)

@@ -37,11 +37,15 @@ def main(level, num, num_init, T, dataset, _log):
     _log.debug("Created SQL session.")
 
     grid_config = model.GridConfig(type=6, level=level, T=T)
-    adaptivity_config = model.AdaptivityConfig(num_refinements=0, no_points=0, treshold=0.0, percent=0.0)
+    adaptivity_config = model.AdaptivityConfig(num_refinements=5, no_points=3, treshold=0.0, percent=0.0)
+    epsilon = np.sqrt(np.finfo(np.float).eps)
     solver_type = sg.SLESolverType_CG
-    solver_config = model.SolverConfig(type=solver_type, max_iterations=50, epsilon=0.0, threshold=10e-5)
-    final_solver_config = model.SolverConfig(type=solver_type, max_iterations=150, epsilon=0.0, threshold=10e-6)
-    regularization_type = sg.RegularizationType_Diagonal
+    solver_config = model.SolverConfig(type=solver_type, max_iterations=50, epsilon=epsilon, threshold=10e-5)
+    final_solver_config = model.SolverConfig(type=solver_type, max_iterations=250, epsilon=epsilon, threshold=10e-6)
+    # solver_type = sg.SLESolverType_FISTA
+    # solver_config = model.SolverConfig(type=solver_type, max_iterations=200, epsilon=0.0, threshold=10e-5)
+    # final_solver_config = model.SolverConfig(type=solver_type, max_iterations=400, epsilon=0.0, threshold=10e-6)
+    regularization_type = sg.RegularizationType_Identity
     regularization_config = model.RegularizationConfig(type=regularization_type, l1_ratio=1.0, exponent_base=1.0)
     experiment = model.Experiment(dataset=dataset)
 
@@ -51,8 +55,8 @@ def main(level, num, num_init, T, dataset, _log):
                                     final_solver_config, adaptivity_config)
     cv = KFold(X_train.shape[0], n_folds=10)
     experiment.cv = str(cv)
-    params = [Hyp_param('regularization_config__lambda_reg', 0.0, 1.0)]
-              #Hyp_param('regularization_config__exponent_base', 0.0, 6.0)]
+    params = [Hyp_param('regularization_config__lambda_reg', 0.0, 0.001)]
+              #Hyp_param('regularization_config__exponent_base', 3.0, 7.0)]
 
     bayes_search = BayesOptReg(estimator, cv, X_train, y_train,
                                params, num, n_init_samples=num_init)
