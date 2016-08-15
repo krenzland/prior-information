@@ -53,6 +53,4 @@ class GridSearch:
             self.grid_scores_.append(evaluate(self.base_estimator_, params, self.cv_, X, y))
             if (self.verbose_ > 0):
                 print("Trained estimator no. {}, {} remaining.".format(i, no_params - i -1))
-        self.grid_scores_ = [evaluate(self.base_estimator_, params, self.cv_, X, y)
-                    for params in self.param_grid_]
         return self
