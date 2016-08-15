@@ -1,4 +1,34 @@
-% !TeX root = ../main.tex
-% Add the above to each chapter to make compiling the PDF easier in some editors.
-
 \chapter{Introduction}\label{chapter:introduction}
+
+The goal of this thesis is to introduce and evaluate different ways to integrate
+prior information into our data mining procedure.
+
+The thesis starts with a chapter, which explains the needed preliminary knowledge.
+It starts with a short introduction to the sparse grid discretization method and
+then covers supervised learning in general, and with sparse grids in particular.
+
+In the following chapters we discuss different ways of integrating prior information
+into this learning method.
+We make the following contributions:
+\begin{itemize}
+\item In \cref{cha:regularization} we evaluate different regularization
+  methods that help us to impose smoothness constrains on our model and allows us
+  to handle noise in the data.
+  We begin with a discussion of regularization theory, and then with selected
+  methods and their implementation.
+  The chapter also contains a discussion of an alternative solver for regularized linear
+  systems, that is able to handle the newly added methods.
+\item In \cref{cha:grid-gen} we evaluate different grid construction methods.
+  In contrast to the chapter before, we impose our prior information even before
+  the inference process starts --- we modify the grid construction algorithm.
+  We first discuss a generalized form of sparse grids, that allows us to modify
+  the granularity of the generated grid.
+  Secondly we introduce interaction-term-aware sparse grids that allow us to construct grids with a different granularity depending on the dimensions and their interaction with each other.
+  The methods discussed in that chapter allow us to tackle very-high dimensional problems, that are impossible or inefficient for regular sparse grids.
+\end{itemize}
+
+Finally, there is an appendix that covers the used datasets and our preprocessing steps.
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: "../main"
+%%% End:
