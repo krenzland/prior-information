@@ -13,7 +13,7 @@ class SGRegressionLearner(sklearn.base.BaseEstimator, sklearn.base.RegressorMixi
         self.final_solver_config = final_solver_config
         self.adaptivity_config = adaptivity_config
 
-    def fit(self, X, y):
+    def fit(self, X, y, weights=None):
         grid_config = RegularGridConfiguration()
         grid_config.dim_ = X.shape[1]
         grid_config.level_ = self.grid_config.level
@@ -54,6 +54,9 @@ class SGRegressionLearner(sklearn.base.BaseEstimator, sklearn.base.RegressorMixi
 
         X_mat = to_data_matrix(X)
         y_vec = DataVector(y.tolist())
+        if weights is not None:
+            self._learner.setWeights(DataVector(weights))
+
         self._learner.train(X_mat, y_vec)
 
     def predict(self, X):
