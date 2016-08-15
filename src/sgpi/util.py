@@ -72,6 +72,7 @@ def get_dataset(name):
     datasets = {
         'concrete': 'concrete/concrete_prep.csv',
         'power_plant': 'power_plant/power_plant_prep.csv',
+        'friedman1': 'friedman1/friedman1_prep.csv',
         'friedman3': 'friedman3/friedman3_prep.csv',
         'yeast': 'yeast/yeast_prep.csv',
         'abalone': 'abalone/abalone_prep.csv',
