@@ -4,7 +4,9 @@ import pandas as pd
 import sklearn.preprocessing as pre
 import sklearn.cross_validation as cv
 from scipy import stats
+from scipy.sparse.linalg import LinearOperator
 from pysgpp import DataMatrix, DataVector
+import pysgpp as sg
 
 def to_data_matrix(arr):
     (size_x, size_y) = arr.shape
@@ -44,7 +46,7 @@ def scale(df, scaler=None):
         X = scaler.transform(X)
     else:
         scaler = pre.MinMaxScaler()
-        X = scaler.fit_transform(X) 
+        X = scaler.fit_transform(X)
     index = df.index
     columns = df.columns
     df = pd.DataFrame(data=X, index=index, columns=columns)
@@ -89,3 +91,114 @@ def get_xy(data):
     X = np.array(data.ix[:,0:-1])
     y = (data.ix[:,-1]).values
     return X,y
+
+def get_used_coords(num):
+    zeros = np.zeros(len(num)) + 0.5
+    return np.equal(zeros, num)
+
+def coords_to_pred(coords):
+    s = ""
+    for i, c in enumerate(coords):
+        if not c:
+            s = s + "x{} ".format(i + 1)
+    s = s.strip()
+    if s == "":
+        return "bias"
+    else:
+        s = s.replace(" ", "-")
+        return s
+
+def group_weights_raw(grid):
+    storage = grid.getStorage()
+    dim = storage.getDimension()
+
+    coords = []
+    for x in range(0, grid.getSize()):
+        gen0 = storage.get(x)
+        curCoords = []
+        for i in range(0,dim):
+            curCoords.append(gen0.getCoord(i))
+        curCoords = np.array(curCoords)
+        coords.append(curCoords)
+
+    terms = {}
+    groups = {}
+    terms_nums = []
+    for num, r in enumerate(coords):
+        d = tuple(get_used_coords(r))
+        if d not in terms:
+            terms[d] = []
+            groups[d] = len(groups)
+        terms[d].append(num)
+        terms_nums.append(groups[d])
+
+    return terms
+
+def group_weights_format(grid):
+    terms = group_weights_raw(grid)
+    return dict([(coords_to_pred(coords), terms[coords]) for coords in terms])
+
+def group_list(grid):
+    groups = group_weights_format(grid)
+    glist = [None] * (grid.getSize())
+    for group in groups:
+        for i in groups[group]:
+            glist[i] = group
+    return glist
+
+def get_Phi(grid, X_train):
+    def eval_op(x, op, size):
+        result_vec = sg.DataVector(size)
+        x = sg.DataVector(np.array(x).flatten())
+        op.mult(x, result_vec)
+        return result_vec.array().copy()
+
+    def eval_op_transpose(x, op, size):
+        result_vec = sg.DataVector(size)
+        x = sg.DataVector(np.array(x).flatten())
+        op.multTranspose(x, result_vec)
+        return result_vec.array().copy()
+
+    data_train = to_data_matrix(X_train)
+
+    num_elem = X_train.shape[0]
+
+    op = sg.createOperationMultipleEval(grid, data_train)
+    matvec = lambda x: eval_op(x, op, num_elem)
+    rmatvec = lambda x: eval_op_transpose(x, op, grid.getSize())
+
+    shape = (num_elem, grid.getSize())
+    linop = LinearOperator(shape, matvec, rmatvec, dtype='float64')
+
+    Phi = linop.matmat(np.matrix(np.identity(grid.getSize())))
+    return Phi
+
+def get_max_lambda(Phi, y, num_points, l1_ratio=1.0):
+    max_prod = 0
+    for i in range(0, num_points):
+        a = np.asarray(Phi[:,i]).flatten()
+        prod = np.inner(a, y)
+        max_prod = max(max_prod, prod)
+    max_lambda = max_prod/(l1_ratio)
+    return max_lambda
+
+def calculate_weight_path(estimator, X, y, max_lambda, epsilon=0.001, num_lambdas=25,verbose=0):
+    min_lambda = epsilon * max_lambda
+    estimator.set_params(regularization_config__lambda_reg = max_lambda)
+    estimator.fit(X, y)
+    lambda_grid = np.logspace(np.log10(max_lambda), np.log10(min_lambda), num=num_lambdas)
+    min_lambda, lambda_grid, min_lambda/X.shape[0]
+    weights = []
+    for i, lamb in enumerate(lambda_grid):
+        estimator.set_params(regularization_config__lambda_reg = lamb)
+        if verbose > 0:
+            print "Started training estimator {}".format(i)
+        estimator.fit(X, y, estimator.get_weights()) # reuse old weights
+        if verbose > 0:
+            print "Finished training estimator {}".format(i)
+        weights.append(estimator.get_weights())
+    df = pd.DataFrame(weights, index=lambda_grid)
+    df = df.transpose()
+    glist = group_list(grid)
+    df.index=glist
+    return df
