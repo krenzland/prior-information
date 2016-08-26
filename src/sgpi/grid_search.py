@@ -1,10 +1,9 @@
 from collections import namedtuple
 import numpy as np; np.random.seed(42)
-from sklearn.externals.joblib import Parallel, delayed
-from sklearn.base import clone
 from sklearn.linear_model import Ridge, ElasticNet
 from sklearn.cross_validation import ShuffleSplit
 from sklearn.grid_search import ParameterGrid
+from sklearn.base import clone
 from .learner import SGRegressionLearner
 
 Grid_score = namedtuple('Grid_score', 'parameters mean_validation_score cv_validation_scores cv_grid_sizes')
@@ -21,16 +20,12 @@ def evaluate_one(estimator, params, X, y, train, test):
     return (error, grid_size)
 
 def evaluate(estimator, params, cv, X, y):
-    cv_results = Parallel(
-                n_jobs=-1
-             )(
-                delayed(evaluate_one)(clone(estimator), params, X, y, train, test)
-                    for (train, test) in cv)
     errors = []
     grid_sizes = []
-    for (err, size) in cv_results:
-        errors.append(err)
-        grid_sizes.append(size)
+    for (train, test) in cv:
+        error, grid_size = evaluate_one(estimator, params, X, y, train, test)
+        errors.append(error)
+        grid_sizes.append(grid_size)
     return Grid_score(params, np.mean(errors), errors, grid_sizes)
 
 class GridSearch:

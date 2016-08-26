@@ -13,7 +13,7 @@ class SGRegressionLearner(sklearn.base.BaseEstimator, sklearn.base.RegressorMixi
         self.final_solver_config = final_solver_config
         self.adaptivity_config = adaptivity_config
 
-    def fit(self, X, y, weights=None):
+    def fit(self, X, y, weights=None, interactions=None):
         grid_config = RegularGridConfiguration()
         grid_config.dim_ = X.shape[1]
         grid_config.level_ = self.grid_config.level
@@ -49,13 +49,17 @@ class SGRegressionLearner(sklearn.base.BaseEstimator, sklearn.base.RegressorMixi
         regularization_config.lambda_ = self.regularization_config.lambda_reg
         regularization_config.l1Ratio_ = self.regularization_config.l1_ratio
 
-        self._learner = RegressionLearner(grid_config, adaptivity_config, solver_config, final_solver_config,
+        if interactions is not None:
+            self._learner = RegressionLearner(grid_config, adaptivity_config, solver_config, final_solver_config,
+                                              regularization_config, interactions)
+        else:
+            self._learner = RegressionLearner(grid_config, adaptivity_config, solver_config, final_solver_config,
                                           regularization_config)
-
         X_mat = to_data_matrix(X)
         y_vec = DataVector(y.tolist())
         if weights is not None:
-            self._learner.setWeights(DataVector(weights))
+            grid_size = self._learner.getGridSize()
+            self._learner.setWeights(DataVector(weights[0:grid_size]))
 
         self._learner.train(X_mat, y_vec)
 

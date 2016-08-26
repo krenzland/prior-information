@@ -7,9 +7,21 @@ from sklearn.preprocessing import MinMaxScaler
 import numpy as np; np.random.seed(42)
 import matplotlib.pyplot as plt
 import seaborn as sns
+
 sns.set_style('white')
 sns.set_palette(sns.color_palette('viridis'))
-plt.rcParams['figure.figsize'] = (20, 6)
+params = {
+    'axes.labelsize': 8,
+    'font.size': 8,
+    'legend.fontsize': 10,
+    'xtick.labelsize': 10,
+    'ytick.labelsize': 10,
+    'axes.labelsize' : 12,
+    'text.usetex': False,
+    'figure.figsize': [4.5, 4.5],
+    'mathtext.default' : 'regular'
+    }
+plt.rcParams.update(params)
 
 def plot_cox(name, X, y):
     data_trans = stats.boxcox(X + 10e-1)

@@ -19,6 +19,8 @@ class GridConfig(Base):
     type = Column(Integer, nullable=False)
     level = Column(Integer, nullable=False)
     T = Column(Integer, nullable=False)
+    # str length is ignored by sqlite anyway...:
+    interactions = Column(String(10000), nullable=True)
 
 class AdaptivityConfig(Base):
     __tablename__ = 'adaptivity_configs'
@@ -68,6 +70,7 @@ class Result(Base):
     result_id = Column(Integer, primary_key=True, autoincrement=True)
 
     validation_mse = Column(Float, nullable=False)
+    validation_std = Column(Float, nullable=True)
     train_mse = Column(Float, nullable=True)
     test_mse = Column(Float, nullable=True)
     train_r2 = Column(Float, nullable=True)
