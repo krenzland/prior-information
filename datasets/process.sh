@@ -39,6 +39,7 @@ main() {
     ./abalone.py "$dir"
     ./friedman3.py "$res_dir"
     ./friedman1.py "$res_dir"
+    ./optdigits.py "$dir"
 
 }
 

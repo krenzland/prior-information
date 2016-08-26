@@ -81,7 +81,9 @@ def get_dataset(name):
         'diag_test_low_noise': 'diagonal_test/diag_test_low_noise.csv',
         'diag_test_medium_noise': 'diagonal_test/diag_test_medium_noise.csv',
         'diag_test_high_noise': 'diagonal_test/diag_test_high_noise.csv',
-        'diag_test_very_high_noise': 'diagonal_test/diag_test_very_high_noise.csv'
+        'diag_test_very_high_noise': 'diagonal_test/diag_test_very_high_noise.csv',
+        'optdigits_train': 'mnist/optdigits_train.csv',
+        'optdigits_test': 'mnist/optdigits_test.csv'
     }
     folder = os.path.join(package_directory, '../../datasets/processed/')
     path = os.path.join(folder, datasets[name])
@@ -173,16 +175,17 @@ def get_Phi(grid, X_train):
     Phi = linop.matmat(np.matrix(np.identity(grid.getSize())))
     return Phi
 
-def get_max_lambda(Phi, y, num_points, l1_ratio=1.0):
+def get_max_lambda(Phi, y, num_points, num_rows, l1_ratio=1.0):
     max_prod = 0
     for i in range(0, num_points):
         a = np.asarray(Phi[:,i]).flatten()
         prod = np.inner(a, y)
         max_prod = max(max_prod, prod)
-    max_lambda = max_prod/(l1_ratio)
+    max_lambda = max_prod/(l1_ratio * num_rows)
     return max_lambda
 
 def calculate_weight_path(estimator, X, y, max_lambda, epsilon=0.001, num_lambdas=25,verbose=0):
+
     min_lambda = epsilon * max_lambda
     estimator.set_params(regularization_config__lambda_reg = max_lambda)
     estimator.fit(X, y)
@@ -199,6 +202,7 @@ def calculate_weight_path(estimator, X, y, max_lambda, epsilon=0.001, num_lambda
         weights.append(estimator.get_weights())
     df = pd.DataFrame(weights, index=lambda_grid)
     df = df.transpose()
+    grid = estimator._learner.getGrid()
     glist = group_list(grid)
     df.index=glist
     return df

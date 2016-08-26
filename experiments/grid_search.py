@@ -10,7 +10,7 @@ import numpy as np
 from operator import itemgetter
 from sacred import Experiment
 from sklearn.base import clone
-from sklearn.cross_validation import KFold
+from sklearn.cross_validation import KFold, StratifiedKFold
 
 import pysgpp as sg
 
@@ -23,12 +23,25 @@ def config():
     T = 0.0
     dataset = 'concrete'
 
+def get_cv(dataset, X_train):
+    if 'optdigits' in dataset:
+        return StratifiedKFold(X_train.shape[0], n_folds=10)
+    else:
+        return KFold(X_train.shape[0], n_folds=10)
+
 @ex.automain
 def main(level, num, T, dataset, _log):
-    df = get_dataset(dataset)
-    train, test = split(df)
-    X_train, y_train = get_xy(train)
-    X_test, y_test = get_xy(test)
+    sg.omp_set_num_threads(4)
+    if 'optdigits' in dataset:
+        df_train = get_dataset('optdigits_train')
+        df_test = get_dataset('optdigits_test')
+        X_train, y_train = get_xy(df_train)
+        X_test, y_test = get_xy(df_test)
+    else:
+        df = get_dataset(dataset)
+        train, test = split(df)
+        X_train, y_train = get_xy(train)
+        X_test, y_test = get_xy(test)
     _log.debug("Read file.")
 
     session = model.make_session()
@@ -40,10 +53,12 @@ def main(level, num, T, dataset, _log):
     solver_type = sg.SLESolverType_CG
     solver_config = model.SolverConfig(type=solver_type, max_iterations=50, epsilon=epsilon, threshold=10e-5)
     final_solver_config = model.SolverConfig(type=solver_type, max_iterations=250, epsilon=epsilon, threshold=10e-6)
+
     # solver_type = sg.SLESolverType_FISTA
     # solver_config = model.SolverConfig(type=solver_type, max_iterations=200, epsilon=0.0, threshold=10e-5)
-    # final_solver_config = model.SolverConfig(type=solver_type, max_iterations=400, epsilon=0.0, threshold=10e-6)
+    # final_solver_config = model.SolverConfig(type=solver_type, max_iterations=400, epsilon=0.0, threshold=10e-8)
     regularization_type = sg.RegularizationType_Diagonal
+    #regularization_type = sg.RegularizationType_ElasticNet
     regularization_config = model.RegularizationConfig(type=regularization_type, l1_ratio=1.0, exponent_base=1.0)
     experiment = model.Experiment(dataset=dataset)
 
@@ -55,11 +70,12 @@ def main(level, num, T, dataset, _log):
 
     _log.debug("Created configurations.")
 
+    interactions = None
     estimator = SGRegressionLearner(grid_config, regularization_config, solver_config,
-                                    final_solver_config, adaptivity_config)
-    cv = KFold(X_train.shape[0], n_folds=10)
+                                    final_solver_config, adaptivity_config, interactions)
+    cv = get_cv(dataset, X_train)
     experiment.cv = str(cv)
-    lambda_grid = np.logspace(-1, -5, num=num)
+    lambda_grid = np.logspace(-4, -1, num=num)
     parameters = {'regularization_config__lambda_reg': lambda_grid,
                   'regularization_config__exponent_base': [1, 4]}
     grid_search = GridSearch(estimator, parameters, cv)
@@ -71,15 +87,18 @@ def main(level, num, T, dataset, _log):
     first = True
     for score in sorted(grid_search.grid_scores_, key=itemgetter(1), reverse=True):
         validation_mse = -score.mean_validation_score
+        validation_std = np.std(np.abs(score.cv_validation_scores))
         validation_grid_sizes = score.cv_grid_sizes
         params = estimator.get_params()
         params.update(score.parameters)
         regularization_config = model.RegularizationConfig(
                                 type=params['regularization_config__type'],
                                 lambda_reg=params['regularization_config__lambda_reg'],
-                                exponent_base=params['regularization_config__exponent_base'])
+                                exponent_base=params['regularization_config__exponent_base'],
+                                l1_ratio=params['regularization_config__l1_ratio'])
         session.add(regularization_config)
         result = model.Result(validation_mse=validation_mse,
+                              validation_std=validation_std,
                               grid_config=grid_config,
                               adaptivity_config=adaptivity_config,
                               solver_config=solver_config,
