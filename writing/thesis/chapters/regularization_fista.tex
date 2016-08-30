@@ -1,5 +1,8 @@
 \subsection{Proximal Methods}
-A possible solver is the Fast Iterative Shrinkage Tresholding Algorithm (\fista), first introduced in~\cite{fista}.
+There are many solvers for the lasso and related methods.
+In this section we present the Fast Iterative Shrinkage Tresholding Algorithm (\fista), first introduced in~\cite{fista}.
+This solver offers a good compromise between flexibility and performance and we
+can use it to solve all presented sparse regularization methods.
 The discussion of \fista\ follows~\cite{fista}, the description of
 the proximal operators follows~\cite{proxsurvey}.
 \fista\ is able solve problems of the form
@@ -44,7 +47,7 @@ It is a regularized, smooth version of our function \(g(\bm{\alpha})\) that has 
 same minimum as \(g(\bm{\alpha})\).
 That means, that every point that minimizes \(M_{g}(\bm{\alpha}, \lambda)\) also
 minimizes our original function \(g (\bm{\alpha})\)~\cite{proxsurvey}.
-Finally, we are able to define the proximal operator that returns the infinum
+Finally, we are able to define the proximal operator that returns the infimum
 point of \cref{eq:moreau-reg} by
 \begin{equation}
   \label{eq:proximal}
@@ -67,7 +70,7 @@ In this case the Moreau envelope and the proximal operator are trivial
  M_{0}(\bm{\alpha}, \lambda) &= \inf_{\bm{x}} \left\{ 0 + 1/(2 \lambda) \Vert \bm{\alpha} - \bm{x} \Vert_2^2 \right\}, \\
  \prox[\(0\)]{\bm{\alpha}}{\lambda} &= \bm{\alpha}.
 \end{align*}
-It is obvious, that the minimum of \(M_g(\bm{\alpha}, \lambda)\) is equivalent to the minimum of \(g(\bm{\alpha})\), the proximal operator is corresponds to a gradient step on \(M_g\).
+It is obvious that the minimum of \(M_g(\bm{\alpha}, \lambda)\) is equivalent to the minimum of \(g(\bm{\alpha})\), the proximal operator is corresponds to a gradient step on \(M_g\).
 
 We are now going to develop a minimizer for our composite goal that resembles a majorization-minimization algorithm.
 To do this, we first define an upper-bound of \(F(\bm{\alpha})\)~(\emph{majorizing}) that we are then going to minimize~(\emph{minimization})~\autocite{proxsurvey}.
@@ -101,7 +104,7 @@ The minimizer for this approximation is then given as the fixed-point equation
 \end{align}
 where \(\bm{\alpha}^*\) denotes the optimal solution and \(L\) is the Lipschitz constant of \(\bm{\nabla} f\) given by \cref{eq:lipf}~\cite{fista}.
 In this equation \(L\) is used to determine the optimal stepsize.
-This minimizer is called proximal gradient algorithm or proximal-splitting in the literature, because we first perform a gradient step on \(f'_L(\bm{\alpha})\) given by~\ref{eq:f-approx} and then a proximal step on \(g(\bm{\alpha})\)~\cite{proxsurvey}.
+This minimizer is called proximal gradient algorithm (or proximal-splitting) in the literature, because we first perform a gradient step on \(f'_L(\bm{\alpha})\) given by~\ref{eq:f-approx} and then a proximal step on \(g(\bm{\alpha})\)~\cite{proxsurvey}.
 Using \cref{eq:step} repeatedly on a point will result in the fixed-point, i.e.~the minimum of the upper bound, and thus also in the minimum of our original goal~\cite{proxsurvey}.
 
 \begin{algorithm}
@@ -143,7 +146,7 @@ where \( \left( x \right)_+ = \max(x, 0) \) denotes the positive part of \(x\)
 and \(t\) is a stepsize.
 The regularization parameters depend on the function \(g(\bm{\alpha})\).
 We omit the derivations for the sake of brevity, the interested reader refers to the survey paper~\cite{proxsurvey}.
-By setting the regularization parameter \(\lambda\) equal to zero, we recover, again, the gradient minimization method.
+By setting the regularization parameter \(\lambda\) equal to zero, we again recover the gradient minimization method.
 
 These proximal operators can be used to define a minimizer for a non-smooth
 function \(g\).
@@ -173,7 +176,7 @@ gradient descent algorithm.
 The first step is identical, each following step carries some momentum of the
 step before, thus stabilizing the procedure.
 It is an optimal first-order optimization schema, i.e.~one that cannot be
-improved asymtotically.
+improved asymptotically.
 It archives quadratic convergence.
 This property is retained when combined with the proximal-splitting procedure \cref{alg:ista}, the result is called \fista~\cite{fista}.
 Each step of \fista\ evaluates the gradient and the proximal operator once, just as \ista does.
@@ -234,14 +237,14 @@ It offers the same asymptotic convergence speed, but shows practical improvement
     iterations with \(\lambda = 0\) for the training set of the concrete
     data set.
     The dotted lines indicate the best value reached by \ista.
-    Notice that \fista is able to return a better result after only 33
+    Note that \fista is able to return a better result after only 33
     iterations ---
-    a drastic speedup compared to the 200 needed by \ista!
+    compared to the 200 needed by \ista.
   }\label{fig:fista-convergence}
 \end{figure}
 
 \begin{algorithm}[h]
- \caption{Fast Iterative Shrinkage Tresholding Algorithm (\fista)~\cite{fista}} \label{alg:fista} 
+ \caption{Fast Iterative Shrinkage Tresholding Algorithm (\fista)~\cite{fista}}\label{alg:fista} 
  \begin{algorithmic}[1]
    \Require{Initial guess for Lipschitz constant \(L\) of \(\bm{\nabla} f\), regularization parameter \(\lambda\)}
     \Statex

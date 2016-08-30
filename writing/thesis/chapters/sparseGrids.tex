@@ -3,8 +3,8 @@
 \section{Sparse Grids}
 Sparse grids is a discretization technique that originates from numerical
 partial differential equation.
-Even though they can be used for diverse problems, we are going to build up
-exactly the amount of theory that is useful for our further study.
+Even though they can be used for diverse problems, we will build up
+the exact amount of theory that is useful for our further study.
 
 This chapter starts with a short description of the adaptive sparse grid
 technique and then progresses to our application of choice: supervised learning.
@@ -22,10 +22,9 @@ We now define a one-dimensional linear basis function for a level \(l\) and an i
   \label{eq:oned-basis}
   \varphi(x)_{l, i} = \varphi(2^l x - i).
 \end{equation}
-We call the basis function defined by the former equation the linear basis function.
+The basis function defined by the former equation are called the linear basis function.
 \todo{Check correctness of formula!}
-These basis functions assume that the function we want to approximate is zero on
-the boundaries.
+These basis functions assume that the function we want to approximate is zero on the boundaries.
 This is why we use the similarily constructed ``modified linear basis functions'', as defined by Pflüger in~\cite{spatAdaptGrid}:
 %https://tex.stackexchange.com/questions/128070/equation-how-to-create-nested-multiple-cases-in-latex-to-align-the-qualifiers
 \newlength{\ldiff}
@@ -46,10 +45,10 @@ This is why we use the similarily constructed ``modified linear basis functions'
   \end{cases}
 \end{equation*}
 that are identical to the basis functions defined by \cref{eq:oned-basis},
-except on the boundaries, where we use extrapolation, for all our experiments.
+except on the boundaries, where they use extrapolation.
 
 \todo{Can I use the same notation as bungartz's paper? At least reference it!}
-We now define the multi-indices \(\bm{l}\), which denotes the level, and \(\bm{i}\) which indicates the index, i.e.~the position on the grid.
+We now define the multi-indices \(\bm{l}\), which denotes the level, and \(\bm{i}\), which indicates the index, i.e.~the position on the grid.
 Arithmetical functions act on multi-indices element-wise, we use the relational operator
 \begin{equation*}
   \bm{\alpha} \leq \bm{\beta} \iff \forall 1 \leq i \leq \alpha_i \leq \beta_d.
@@ -62,7 +61,7 @@ We use \(\bm{1}\) and \(\bm{2}\) as a short-hand for \(1, \ldots, 1\) and
 \((2, \ldots, 2)\) respectively.
 
 \sidetitle{\(d\)-Dimensional Basis}
-We can then construct the d-dimensional basis functions with the following tensor product construction, where we use the one-dimensional basis functions as our building blocks
+We can then construct the d-dimensional basis functions with the tensor product construction
 \begin{equation*}
 \varphi_{\bm{l}, \bm{i}} (\bm{x}) = \prod_{k=1}^d \varphi_{l_k, i_k} (x_k).
 \end{equation*}
@@ -107,8 +106,8 @@ These functions form a Soboloev space \(H_2^\text{mix}(\Omega)\) defined by
 
 \sidetitle{Sparse Grid}
 For this function space, sparse grids are a discretization methods that is a
-reasonable tradeoff between accuracy and efficiency.
-Changing the maximum to the l1-norm we get
+reasonable trade-off between accuracy and efficiency.
+By exchanging the \(l_\infty\) with the \(l_1\)-norm we get
 \begin{align}
   G_n^1 &= \bigcup_{\vert {\bm{l}} \vert_1 \leq n + d - 1} G_{\bm{l}}, \nonumber \\
   V_n^1 &= \bigoplus_{\vert {\bm{l}} \vert_1 \leq n + d - 1} W_{\bm{l}} \label{eq:sparse-grid-space},
@@ -118,46 +117,50 @@ grids respectively.
 Df are of order \( \BigO (2^n n^{d-1})\)
 
 \subsection{Adaptivity}
-% \begin{figure}[t]
-% \centering
-% \includegraphics[width=0.7\textwidth]{adaptivity}
-% \caption[Adaptivity]{We start with a small 2-dimensional grid with level 3. The first
-%   pictures shows the standard grid, the other two show one adaptivity step each.
-% The red points are the points that were created by the adaptivity step.}\label{fig:adaptivity}
-% \end{figure}
-\ldots
+Sparse grids work best if the function adheres to our smoothness assumptions.
+Functions that are not well behaving, such as functions that are not smooth in
+some parts of their domain, are more difficult to handle.
+\citeauthor{spatAdaptGrid} devised an adaptive technique that helps us to approximate challenging functions in~\cite{spatAdaptGrid}.
+Instead of relying only on the theoretically optimal results of sparse grids for
+functions in \(H^2_{\text{mix}}\), he described an optimisation process to
+refine grids so that they adapt to the circumstances of the problem.
+Because this optimisation process is computationally hard to calculate, a greedy
+algorithm that approximates the optimal solution is used~\cite{spatAdaptGrid}.
+The idea is quite simple: we create new grid points that are likely to capture
+additional information, close to existing points.
 
-\section{Supervised Learning: Regression \textit{\&} Classification}
+An example can be seen in \cref{fig:adaptivity}.
 
-Consider \ldots \todo{Add concrete example for Regression.}
+\begin{figure}[thb]
+\includegraphics[width=0.7\textwidth]{adaptivity}
+ \caption[Adaptivity]{We start with a small 2-dimensional grid with level 3. The first
+   picture shows the standard grid, the other two show one adaptivity step each.
+ The red points are the points that were created by the adaptivity step.}\label{fig:adaptivity}
+\end{figure}
 
-Let the set \todo{Insert definition for training set.}
+\section{Inference with Sparse Grids}
+
+Let the set \todo{Fix definition for training set.}
 \begin{equation*}
 T = \left\{ \left(  \bm{x}, y \right) \subset \mathbb{R}^D \times y \right\} 
 \end{equation*}
-be a set of labeled examples with \(\bm{x}\) as predictors and \(y\) as the
-target variable. 
+be a set of labelled examples with \(\bm{x}\) as predictors and \(y\) as the target variable. 
 This set is called training set.
-We assume that the examples are independent and drawn from the same probability distribution.
-\marginline{Our procedure also works, if the examples are dependent. The
-  assumption makes the analysis easier.}
-Our goal is not interpolation, we do not want to find a function that fits the
-examples exactly.
-We rather want to find an approximation of our function that
-generalizes well, that is a function that allows us to make accurate predictions
-for yet unseen, unlabeled data.
-In other words we want to learn the structure of the data set.
+The goal is not interpolation, as we do not want to find a function that fits the examples exactly.
+We rather want to find an approximation of our function that generalizes well,
+that is a function that captures the structure of the training data and can be
+used to predict the target variable for different, yet unseen data points.
 
 We differentiate between
 \begin{description}
 \item[Regression] if we want to predict a continuous \(y\) and
-\item[Classification] if we want to predict a discrete value, a class.
+\item[classification] if we want to predict a discrete value, a class.
 \end{description}
 In this thesis we will mostly see examples of regression, the last chapter
 contains an example for a high-dimensional classification problem.
 
-\section{Inference with Sparse Grids}
-We now write:
+Sparse grids can be used to perform regression.
+Using the matrices
 \begin{equation*}
 \boldsymbol{\phi}(\boldsymbol{x}) = \begin{pmatrix}
   \varphi_1(\bm{x}) \\
@@ -171,24 +174,38 @@ We now write:
   \boldsymbol{\phi}(x_n)^\intercal
 \end{bmatrix},
 \end{equation*}
-which we use to express our regression formula
+we can express our function as
 \begin{equation*}
-\hat{y} = \sum_{j = 1}^m \alpha_j \varphi_{j}(\bm{x}) = \boldsymbol{\alpha}^\intercal \bm{\phi} (\bm{x})
+\hat{y} = \sum_{j = 1}^m \alpha_j \varphi_{j}(\bm{x}) = \boldsymbol{\alpha}^\intercal \bm{\phi} (\bm{x}),
 \end{equation*}
-as a weighted sum of the basis functions.
+which is a weighted sum of the basis functions, closely related to \cref{eq:coefficients-h2mix}.
 
-We can now formulate our goal as an optimisation problem of the form
+The optimisation goal is then given by
 \begin{equation}\label{eq:optGoal}
 \min_{\bm{\alpha}} \left\Vert  \bm{\Phi} \bm{\alpha} - \bm{y}   \right\Vert_2^2  + \lambda \mathcal{S}(\bm{\alpha}), 
 \end{equation}
-with \(\mathcal{S}(\bm{\alpha})\) as a regularisation operator and \(\lambda\) as a constant.
+where \(\mathcal{S}(\bm{\alpha})\) is a regularization operator and \(\lambda\) is a constant.
+This least-square problem can be solved for differentiable operators
+\(\mathcal{S}\) by a conjugated-gradient-solver.
+Adaptivity can be integrated into this process by performing a refinement step
+after solving the optimisation step, iterating until a satisfactory performance
+is archived.
+We perform adaptivity by calculating \textsc{MSE} for the model and then refine
+the grid, starting with the point with the highest contribution to the error.
 
-The procedure explained above also enables us to solve classification problems.
-To do this, we perform one-vs-all classification.
-This means that we train a learner for each class, and decode the target as 1 if it is a member of our current goal-class and 0 if it belongs to a different class.
-To predict the most likely class, we run a prediction for all created estimators and return the class whose learner returned the largest prediction. 
+A binary classification problem can be transformed into a regression problem,
+by relaxing the target \(y\).
+We set \(y = 0\) for each dataset when the datum belongs to the first class, and
+\(y = 1\) if it does not.
+The prediction of the model can then be interpreted as a certainty that the
+data is a member of the class.
 
-This implies that all methods that improve the performance of the regression procedure are also very likely to lead to better classification results, because we are performing classification via regression.
+To solve a multi-class-classification problem, one-vs-all classification is used,
+for which we transform the problem into multiple binary classification problems.
+To perform a prediction we calculate the results for each binary estimator, and
+report the class label of the learner that returned the largest certainty.
+
+This implies that all methods that improve the performance of the regression procedure also very likely lead to better classification results, because we are performing classification via regression.
 %%% Local Variables:
 %%% mode: latex
 %%% TeX-master: "../main"
