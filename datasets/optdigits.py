@@ -29,5 +29,12 @@ def main():
     df_train.to_csv(res_dir + 'optdigits_train.csv', index=False)
     df_test.to_csv(res_dir + 'optdigits_test.csv', index=False)
 
+    # We use the following subsample to estimate parameters.
+    df_train = df_train[(df_train['digit'] == 2) | (df_train['digit'] == 7) | (df_train['digit'] == 9)]
+    df_test = df_test[(df_test['digit'] == 2) | (df_test['digit'] == 7) | (df_test['digit'] == 9)]
+    df_train.to_csv(res_dir + 'optdigits_sub_train.csv', index=False)
+    df_test.to_csv(res_dir + 'optdigits_sub_test.csv', index=False)
+
+
 if __name__ == '__main__':
     main()
