@@ -3,6 +3,7 @@ import numpy as np; np.random.seed(42)
 import pandas as pd
 import sklearn.preprocessing as pre
 import sklearn.cross_validation as cv
+from sklearn.cross_validation import KFold, StratifiedKFold
 from scipy import stats
 from scipy.sparse.linalg import LinearOperator
 from pysgpp import DataMatrix, DataVector
@@ -83,7 +84,9 @@ def get_dataset(name):
         'diag_test_high_noise': 'diagonal_test/diag_test_high_noise.csv',
         'diag_test_very_high_noise': 'diagonal_test/diag_test_very_high_noise.csv',
         'optdigits_train': 'mnist/optdigits_train.csv',
-        'optdigits_test': 'mnist/optdigits_test.csv'
+        'optdigits_test': 'mnist/optdigits_test.csv',
+        'optdigits_sub_train': 'mnist/optdigits_sub_train.csv',
+        'optdigits_sub_test': 'mnist/optdigits_sub_test.csv'
     }
     folder = os.path.join(package_directory, '../../datasets/processed/')
     path = os.path.join(folder, datasets[name])
@@ -206,3 +209,10 @@ def calculate_weight_path(estimator, X, y, max_lambda, epsilon=0.001, num_lambda
     glist = group_list(grid)
     df.index=glist
     return df
+
+def get_cv(dataset, y_train):
+    if 'optdigits' in dataset:
+        return StratifiedKFold(y_train, n_folds=3)
+    else:
+        return KFold(y_train.shape[0], n_folds=10)
+
