@@ -10,18 +10,36 @@ import seaborn as sns
 
 sns.set_style('white')
 sns.set_palette(sns.color_palette('viridis'))
+
+def figsize(scale=1.0):
+    latex_width = 418.25555 #pt
+    fig_width = latex_width/72.27 # inches
+    fig_height = fig_width * (np.sqrt(5)-1.0)/2.0
+    return [fig_width*scale, fig_height*scale]
+
 params = {
-    'axes.labelsize': 8,
-    'font.size': 8,
-    'legend.fontsize': 10,
-    'xtick.labelsize': 10,
-    'ytick.labelsize': 10,
-    'axes.labelsize' : 12,
-    'text.usetex': False,
-    'figure.figsize': [4.5, 4.5],
-    'mathtext.default' : 'regular'
+    'font.size': 11,
+    'font.family': 'serif',
+    'font.serif': [],
+    'axes.labelsize': 11,
+    'legend.fontsize': 11,
+    'xtick.labelsize': 8,
+    'ytick.labelsize': 8,
+    'figure.figsize': figsize(scale=1.0),
+    'text.usetex': True,
+    'pgf.texsystem': 'pdflatex',
+    'text.latex.unicode': True
+    #     # r'\usepackage[utf8]{inputenc}',
+    #     # r'\usepackage[T1]{fontenc}',
+    #     r'\usepackage[sc, osf]{mathpazo}',
+    #     r'\usepackage[euler-digits,small]{eulervm}',
+    #     r'\usepackage{amsmath}'
+    # ]
     }
 plt.rcParams.update(params)
+plt.rcParams['text.latex.preamble'].extend([r'\usepackage[sc]{mathpazo}',
+        r'\usepackage[euler-digits,small]{eulervm}',
+        r'\usepackage{amsmath}'])
 
 def plot_cox(name, X, y):
     data_trans = stats.boxcox(X + 10e-1)
