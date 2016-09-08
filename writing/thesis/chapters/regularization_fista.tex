@@ -10,9 +10,9 @@ the proximal operators follows~\cite{proxsurvey}.
 \min_{\bm{\alpha}} F(\bm{\alpha}) = f(\bm{\alpha}) + g(\bm{\alpha}),
 \end{equation}
 i.e.~minimizing functions that can be expressed as a sum of a convex, smooth function \(f(\bm{\alpha})\) and another convex, possibly non-smooth function \(g(\bm{\alpha})\).
+\sidetitle{Lipschitz constant}
 It is required that \(f(\bm{\alpha})\) has a Lipschitz-continuous gradient. 
 This means that the following condition holds for all possible vectors \(\bm{x}\) and \(\bm{y}\) for some positive constant \(L\):
-\sidetitle{Lipschitz constant}
 \begin{equation}   \label{eq:lipschitz}
  \Vert \bm{\nabla} f(\bm{x}) - \bm{\nabla} f(\bm{y}) \Vert \leq L \Vert \bm{x} - \bm{y} \Vert.
 \end{equation}
@@ -37,8 +37,8 @@ Additionally we set \(g\) to
   g(\bm{\alpha}, \lambda) = \mathcal{S} \left( \bm{\alpha}, \lambda \right).
 \end{equation*}
 
-We now define the Moreau envelope of a function \(g (\bm{\alpha})\), which is given for any \(\lambda \in (0, +\infty)\) by
 \sidetitle{Moreau envelope}
+We now define the Moreau envelope of a function \(g (\bm{\alpha})\), which is given for any \(\lambda \in (0, +\infty)\) by
 \begin{equation}
   \label{eq:moreau-reg}
   M_{g}(\bm{\alpha}, \lambda) = \inf_{\bm{x}} \left\{  g(x) + (1/(2\lambda)) \Vert x - \bm{\alpha} \Vert_2^2 \right\}.
@@ -148,9 +148,9 @@ The regularization parameters depend on the function \(g(\bm{\alpha})\).
 We omit the derivations for the sake of brevity, the interested reader refers to the survey paper~\cite{proxsurvey}.
 By setting the regularization parameter \(\lambda\) equal to zero, we again recover the gradient minimization method.
 
+\sidetitle{Minimizing Lasso}
 These proximal operators can be used to define a minimizer for a non-smooth
 function \(g\).
-\sidetitle{Minimizing Lasso}
 For example, combining~\cref{eq:step} with the proximal operator for the
 Lasso functional \(g(\bm{\alpha}) = \lambda \Vert \bm{\alpha} \Vert_1\) given by~\cref{eq:prox-lasso} results in
 the minimizer
@@ -167,10 +167,10 @@ the Lasso problem.
 The fixed-point equations for the Lasso and Elastic Net Regularization are
 computed analogously.
 
+\sidetitle{Nesterov's accelerated gradient descent}
 \ista always converges to the global maximum, but only does so linearly~\cite{fista}.
 To overcome this problem, Beck and Teboulle combined the \ista algorithm with
 the accelerated gradient descent algorithm discovered by Nesterov. 
-\sidetitle{Nesterov's accelerated gradient descent}
 Nesterov's accelerated gradient descent is closely related to the ordinary
 gradient descent algorithm.
 The first step is identical, each following step carries some momentum of the
@@ -182,9 +182,9 @@ This property is retained when combined with the proximal-splitting procedure \c
 Each step of \fista\ evaluates the gradient and the proximal operator once, just as \ista does.
 This means that the accelerated algorithm has a comparable cost for each iteration.
 
+\sidetitle{Linesearch}
 Another problem with \cref{alg:ista} is its dependence on the Lipschitz constant of
 \(\bm{\nabla} f\) to determine the optimal stepsize.
-\sidetitle{Linesearch}
 For our choice of \(f\), the best constant \(L\) is given by~\cref{eq:lipf}.
 To avoid this expensive calculation, we use a backtracking line search to
 determine a suitable stepsize.
@@ -231,15 +231,15 @@ An alternative backtracking scheme for \fista is offered in~\cite{fista-backtrac
 It offers the same asymptotic convergence speed, but shows practical improvements for some minimization problems.
 
 \begin{figure}[bt]
-  \includegraphics[scale=0.6]{fista}
+  \includegraphics[width=\textwidth]{fista}
   \caption[Comparison of \fista and \ista]{Comparison of \fista and \ista, both with constant stepsize.
-    The figure shows the training mean squared error for the first 200
-    iterations with \(\lambda = 0\) for the training set of the concrete
+    The figure shows the training \textsc{mse} for 500
+    iterations with \(\lambda = 0.1\) for the training set of the concrete
     data set.
     The dotted lines indicate the best value reached by \ista.
-    Note that \fista is able to return a better result after only 33
+    Note that \fista is able to return a better result after only 56
     iterations ---
-    compared to the 200 needed by \ista.
+    compared to the 500 needed by \ista.
   }\label{fig:fista-convergence}
 \end{figure}
 

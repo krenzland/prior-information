@@ -1,6 +1,43 @@
 
 \chapter{Conclusion}
 \label{chap:conclusion}
+Over the course of this thesis we discussed many useful ways to use prior
+knowledge to enhance the capabilities of the sparse grid model for machine
+learning.
 
-We have developed multiple ways of handling prior knowledge during this thesis.
-They were all quite awesome.
+We compared multiple regularization penalties, which allow us to impose a prior
+on the weights.
+The diagonal Tikhonov functional uses only information about the smoothness of
+the real-world function, which applies to many real world data sets and is
+therefore a rather mild assumption.
+Knowledge about the sparsity of the weights indicate that one of the presented
+sparsity-inducing penalties can be helpful.
+Such information arises naturally from problems, where we know that our signal
+is inherently sparse.
+It also allows us to use a model with many degrees of freedom by selecting the
+important basis functions automatically.
+
+In the second chapter we developed methods that are able to create sparse grids
+that encode our knowledge about the importance of the feature interactions.
+The generalised sparse grids can be used to alter the number of higher-order
+terms without changing the number of grid points that correspond directly to a
+feature.
+If we have more information about the importance of the interactions we can
+exclude higher-order terms that probably contain less information.
+This turned out to be extremely helpful for our image recognition problem, where
+we used the method to implement a convolutional sparse grid, that achieved
+competitive results.
+
+All in all we have shown that prior knowledge can be useful for all used
+datasets.
+In some cases our prior knowledge only consisted of very mild assumptions that
+should apply to most datasets.
+These methods can therefore be used for all-purpose learning and are not limited
+to a certain problem category.
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: "../main"
+%%% End:
+
+

@@ -1,33 +1,53 @@
 \chapter{Introduction}\label{chapter:introduction}
+We live in a world that runs on data.
+Machine learning and statistics are the fuel, that continues to power the
+ever-growing service industry but also supply companies with needed business
+intelligence.
+
+Throughout this thesis we will discuss supervised learning methods that are
+based on the sparse grids methodology.
+Sparse grids is a family of closely-related discretization techniques that
+originates from numerical partial differential equations.
+It approximates functions with many simple basis functions.
+Because of its origins, the notation and terminology used is different from the
+standard machine learning one.
+We try to fit the sparse grid learning methods into a coherent and simple
+statistical framework that is natural to the application.
 
 The goal of this thesis is to introduce and evaluate different ways to integrate
 prior information into our data mining procedure.
+In this context prior information corresponds to something akin to the standard
+Bayesian prior.
+This prior represents assumptions, which can be either drawn from the dataset or
+from the inherent properties of the sparse grid methods.
 
-The thesis starts with a chapter explaining the needed preliminary knowledge.
-It starts with a short introduction to the sparse grid discretization method and
-then covers supervised learning in general, and with sparse grids in particular.
+The thesis starts with a chapter explaining the needed preliminary mathematical
+techniques and especially the fundamentals of the sparse grid framework.
 
-In the following chapters we discuss different ways of integrating prior information
-into this learning method.
+We then look at different ways of including prior information into this learning method.
 We make the following contributions:
 \begin{itemize}
 \item In \cref{cha:regularization} we evaluate different regularization
   methods that help us to impose smoothness constrains on our model and allows us
-  to handle noise in the data.
-  We begin with a discussion of regularization theory, and then with selected
-  methods and their implementation.
-  The chapter also contains a discussion of an alternative solver for regularized linear
-  systems, that is able to handle the newly added methods.
+  to simplify our models.
+  We begin with a discussion of regularization theory and then segue into an
+  analysis of two fundamental methods: Tikhonov regularization and
+  sparsity-inducing penalties.
+  The regularization methods represent different assumptions.
+  We present both methods that show promising results under only mild conditions
+  and methods, which are better suited for problems where we can make stronger
+  assumptions about the data.
+  The chapter also contains a discussion of an alternative state-of-the-art solver for regularized linear systems, that is able to handle the newly added methods.
 \item In \cref{cha:grid-gen} we evaluate different grid construction methods.
-  In contrast to the chapter before, we impose our prior information even before
-  the inference process starts --- we modify the grid construction algorithm.
+  In contrast to the chapter before, we use our prior knowledge to modify the
+  grid generation process, which is more efficient than the regularization
+  approach, but also requires stronger assumptions than the basic regularization approaches.
   We first discuss a generalized form of sparse grids, that allows us to modify
   the granularity of the generated grid.
   Secondly we introduce interaction-term-aware sparse grids that allow us to construct grids with a different granularity depending on the dimensions and their interaction with each other.
   The methods discussed in that chapter allow us to tackle very-high dimensional problems, that are impossible or inefficient for regular sparse grids.
 \end{itemize}
 
-Finally, there is an appendix that covers the used datasets and our preprocessing steps.
 %%% Local Variables:
 %%% mode: latex
 %%% TeX-master: "../main"

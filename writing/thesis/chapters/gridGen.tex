@@ -1,75 +1,45 @@
 \chapter{Grid generation}\label{cha:grid-gen}
 In this chapter we discuss methods that allows us to apply our prior knowledge directly into the grid generation process.
-This is a stark contrast to the methods in the previous chapter which helped us
-to impose our constraints in the learning process.
-Even though these methods worked despite limited prior knowledge, they have
-one major drawback:
+This is a stark contrast to the methods in the previous chapter, where we imposed our constraints in the learning process.
+Even though these methods work well even with limited prior knowledge, they have one major drawback:
 We \emph{always} have to generate a complete sparse grid.
-This was not a problem for the lower dimensional datasets we used to evaluate
-the methods, but is a limiting factor for higher dimensional problems.
+This was not a problem for low to mid-dimensional datasets, but is a limiting factor for higher dimensional problems.
 \sidetitle{High dimensional problems}
 To tackle very-high dimensional problems, we need to be able to influence the
 grid generation.
 
-The first method discussed here, generalized sparse grids, allows us to impose
-further smoothness constraints on the grid.
-The second method, interaction-term aware sparse grids, allows us to impose
-knowledge about the possible variable interactions on the grid.
-
+We will discuss two modifications of the grid generation algorithm in this
+chapter.
+The first one, generalized sparse grids, allows us to create grids with variable granularity.
+The second method, interaction-term aware sparse grids, use knowledge about the
+importance of interaction-terms to create grids that are both smaller and more effective.
 \section{Generalized Sparse Grids}\label{sec:generalised-sg}
-Generalised sparse grids are a technique that allows us to influence the
-granularity of the grid.
+Generalized sparse grids allow us to create grids with a variable granularity.
+They can be used to create smaller grids while retaining the approximation
+error, given some additional smoothness constraints.
 They were first developed by \citeauthor{optimizedApproxSpaces} in~\cite{optimizedApproxSpaces}.
+A discussion about their usefulness for machine learning can be found
+in~\cite{sparse-reconstruction} and in~\cite{sparse-parsimony}.
 
 \subsection{Theory}
-%Maybe use index set notation?
-Despite the fact that the generalised sparse grid techniques originates from
-complicated calculations, they are stated by two simple formulas.
-We only need to change \vref{eq:sparse-grid-space} to generalise our grid.
-We can describe the set of grid points for the generalised sparse grid \(G^T_n\)
-of level \(n\) and its corresponding approximation space \(V^T_n\) with
+Despite the fact that the generalised sparse grid technique originates from
+an elaborate functional analysis argument, they can be stated by two simple formulas.
+We only need to change \cref{eq:sparse-grid-space} to generalize our grid.
+The set of grid points for the generalized sparse grid \(G^T_n\) of level \(n\)
+and its corresponding approximation space \(V^T_n\) is described by
 \begin{align}\label{eq:generalised-grid-space}
 G_n^T &= \bigcup_{\mathclap{\substack{\vert {\bm{l}} \vert_1 - T \vert \bm{i} \vert_\infty \\ \leq n + d - 1 - T n}}} G_{\bm{l}},\\
 V_n^T &= \bigoplus_{\mathclap{\substack{\vert {\bm{l}} \vert_1 - T \vert \bm{i} \vert_\infty \\ \leq n + d - 1 - T n}}} W_{\bm{l}}.\nonumber
 \end{align}
-The constant \(T\) can be chosen in the interval \((-\infty, 1]\) and governs
-our choice of subgrids.
+The constant \(T\) chosen in the interval \((-\infty, 1]\) governs our choice of
+sub-spaces and thus also the granularity of the grid.
 Setting \(T\) to zero recovers the standard sparse grid, higher values
-approaching one transform the grid to the form seen in figure x.
+approaching one transform the grid to the form seen in \cref{fig:grids-T-1}.
 The limit \(T \to -\infty\) corresponds to a full grid.
-Note that, even if the value of \(T\) is continuous, it acts as a discrete
-operator.
-The actual value of \(T\) does not matter, different values can result in the
+Note that even though the value of \(T\) is continuous, it acts as a discrete operator.
+This is why the actual value of \(T\) does not matter, different values can result in the
 same grid.
-The dimension of the generalised sparse grids with level \(n\) and constant
-\(T\) can be described by
-\begin{equation*}
-  \operatorname{dim}(V^T_n) \leq
-  \begin{cases}
-    d 2^n & T = 1, \\
-    \BigO(2^n) & T \in (1/n, 1),\\
-    \BigO(2^n n^{d-1}) & T \in [0, 1/n],\\
-    \BigO(2^{\frac{T - 1}{T/d - 1} n}) & T < 0.
-  \end{cases}
-\end{equation*}
-We can see that the special cases \(T = 0\) and \(T \to \infty\) are covered~\cite{optimizedApproxSpaces}.
-\todo{Write about interpolation error and check dimensionality formula.}
-
-A higher value of \(T\) decreases the amount of grid points and interaction terms.
-The effect for a grid with dimension 4 and level 5 can be seen in \cref{fig:adaptivity}.
-\begin{figure}[thb]
-\makebox[\textwidth][c]{\includegraphics[width=1.2\textwidth]{interactionT}}%
-\caption[Order of interaction terms for generalised sparse grids.]{
-This figure shows the number of terms of each order for a grid with dimension 4
-and level 5.
-The bias term is not included in the graphic, it is contained in all grids.}\label{fig:adaptivity}
-\end{figure}
-Note that the grid for \(T = 1\) does not contain any interaction terms.
-The number of grid points of order one, i.e.~points that are constant for all
-but one variable stay the same.
-The grid for \(T = 1\) does not contain any points except the aforementioned
-ones.
-
+An example for a two-dimensional grid with level four can be seen in \cref{fig:grids-T}.
 \begin{figure}[H]
   \centering
   \begin{subfigure}[b]{0.23\textwidth}
@@ -90,36 +60,62 @@ ones.
  \begin{subfigure}[b]{0.23\textwidth}
     \centering
     \includegraphics[width=\textwidth]{{{grid_T1.0}}}
-    \caption{\(T = 1.0\)}
+    \caption{\(T = 1.0\)}\label{fig:grids-T-1}
   \end{subfigure}
-  \caption{Grid visualization for different \(T\)s}\label{fig:grids-T}
+  \caption{Grid visualization for 2-dimensional grids with different \(T\)s}\label{fig:grids-T}
 \end{figure}
+The dimension of a generalized sparse grid with level \(n\) and constant \(T\) can be described by
+\begin{equation*}
+  \operatorname{dim}(V^T_n) \leq
+  \begin{cases}
+    d 2^n & T = 1, \\
+    \BigO(2^n) & T \in (1/n, 1),\\
+    \BigO(2^n n^{d-1}) & T \in [0, 1/n],\\
+    \BigO(2^{\frac{T - 1}{T/d - 1} n}) & T < 0.
+  \end{cases}
+\end{equation*}
+We can see that the special cases \(T = 0\) and \(T \to \infty\) are covered~\cite{optimizedApproxSpaces}.
+While it is possible to state a formula for the approximation error it is quite hard to
+apply it to machine learning problems, as the smoothness properties of real world
+datasets are unknown.
+This means that it is hard to decide, whether generalized sparse grids make
+sense for a given problem, without generating a model.
+We can view the generalized sparse grids from a different perspective as well.
+A higher value of \(T\) decreases the amount of higher-order interaction terms,
+without decreasing the number of basis functions that model only one variable.
+The effect for a grid with dimension 4 and level 5 can be seen in \cref{fig:interaction-T}.
+\begin{figure}[thb]
+\includegraphics{interactionT}
+\caption{Number of terms of each order for a grid with dimension 4 and level 5.
+The bias term is not included in the graphic, it is contained in all grids.}\label{fig:interaction-T}
+\end{figure}
+Note that the grid for \(T = 1\) does not contain any interaction terms.
+Smaller values of \(T\) increase the number of interaction terms, until the full
+grid is reached.
+  Because the importance of feature interactions is hard to judge for most problems, this heuristic is also difficult to apply.
 
 \subsection{Implementation}
-The implementation is quite simple, at least in our case.
-It was possible to change the already existing grid generation algorithm.
-The changes amounted to simply modifying the inclusion criterion so that it
-reflect the criterion described by \cref{eq:generalised-grid-space}.
-
+The implementation is quite simple.
+It was possible to change the already existing grid generation algorithm, to include the changed inclusion criterion described by \cref{eq:generalised-grid-space}.
 \begin{algorithm}[h]
  \caption{Generalised Sparse Grid Generation}\label{alg:gen-sg} 
  \begin{algorithmic}[1]
-   \Require{???}
+   \Require{Number of dimensions and level \(n\)}
    \Statex
-   \Function{GridGeneration}{params}
-   \For{\(0 \leq d \leq \text{ dimensions}\)}
-   \State\Call{CreatePoint}{0, 1, 1} \Comment{Bias points}
+   \Function{GridGeneration}{dimensions, $n$}
+   \For{\(0 \leq d < \text{ dimensions}\)}
+   \State\Call{CreatePoint}{d, 1, 1} \Comment{Bias points}
    \EndFor
-   \For{\((l, i) \in \{ 1 \leq l \leq n, 1 \leq i < l^2, i \text{ odd} \} \)}
+   \For{\((l, i) \in \{(l,i) \, \mid 1 \leq l \leq n \land 1 \leq i < l^2,\, i \text{ odd} \} \)}
      \State\Call{CreatePoint}{0, l, i} \Comment{1d-grid points for first dimension}
    \EndFor
-   \For{\( d \in \text{dimensions}\)}
+   \For{\( d < \text{dimensions}\)}
    \For{\(p \in \Call{GetAllGridPoints}{}\)}
    \Let{levelSum}{\Call{p.getLevelSum}{} - 1}
    \Let{levelMax}{\Call{p.getLevelMax}{}}
    \Let{l}{1}
    \While{\(\max(l, \text{levelMax}) \leq n\)}
-   \Let{left}{\((l + \text{ levelSum}) - (T \cdot \max(l, \text{ levelMax}) \)}
+   \Let{left}{\((l + \text{ levelSum}) - (T \cdot \max(l, \text{ levelMax})) \)}
    \Let{right}{\((n + \text{ dimensions} - 1) - (T \cdot n)\)}
    \If{left \(>\) right}
    \State\Call{break}{}
@@ -135,7 +131,12 @@ reflect the criterion described by \cref{eq:generalised-grid-space}.
    \EndFunction
  \end{algorithmic}
 \end{algorithm}
-
+The resulting algorithm is given by \cref{alg:gen-sg}, lines 11--13 correspond to our changes.
+We use the functions \textsc{CreatePoint}, which generates a point for a given
+level and index, and \textsc{CreatePointAt}, which also generates a point, but
+this time as a child of another point.
+For the discussion here the distinction is not important, because our algorithms do not rely on the hierarchical structure of the grid.
+Our implementation is a direct translation of the pseudo-code.
 \subsection{Results \textit{\&} Discussion}
 \newenvironment{ttable}{
   \begin{tabular}[c]{S[table-format=2.1]
@@ -155,8 +156,8 @@ reflect the criterion described by \cref{eq:generalised-grid-space}.
 & \multicolumn{1}{r}{Test-\textsc{rmse}}
 \\\midrule}{\bottomrule\end{tabular}}
 
-Generalised grids work well in theory.
-To test their practical performance, we tested two things that we will discuss
+Generalized grids work well in theory.
+To show their practical performance, we tested two things that we will discuss
 in this section:
 \begin{enumerate}
 \item In what way does the grid parameter \(T\) influence the regularization
@@ -173,29 +174,19 @@ in this section:
 1 & 1.0432e-04 & 391.2(  72) & 1.031 & 395.0 & 0.976 & 1.015\\
     \end{ttable}
 \caption[T vs \(\lambda\) for friedman1 dataset.]{Best results and used \(\lambda\) for different
-  \(T\)s for the Friedman1 dataset and an estimator with level 4}\label{fig:t-vs-mse-friedman1}
+  \(T\)s for the Friedman1 dataset and an estimator with level
+  four.
+  The \textsc{cv}-Grid size is reported with its standard deviation.}\label{fig:t-vs-mse-friedman1}
 \end{table}
 
-\begin{table}[b]
-    \begin{ttable}
--0.4 & 1.9276e-02 & 8468.7( 206) & 4.703 & 8470.0 & 2.275 & 4.215\\
-0 & 1.9622e-02 & 6678.3( 271) & 4.709 & 6650.0 & 2.286 & 4.184\\
-0.5 & 6.2935e-03 & 1140.4( 239) & 4.771 & 1180.0 & 2.664 & 3.797\\
-0.6 & 1.2700e-02 & 712.7( 242) & 4.781 & 685.0 & 3.398 & 4.308\\
-    \end{ttable}
-\caption[T vs \(\lambda\) for concrete dataset.]{Best results and used \(\lambda\) for different
-  \(T\)s for the concrete dataset and an estimator with level 5. The optimal
-  \textsc{rmse} is 1.0.}\label{fig:t-vs-mse-concrete}
-\end{table}
-
-
-We performed 25 iterations of a Bayesian hyper-parameter search for \(\lambda\) for the Friedman1 dataset (see \cref{sec:friedman,eq:friedman1}) with identity regularization and a generalized sparse grid for different \(T\)s and level 4.
+\sidetitle{Friedman1}
+We performed 25 iterations of a Bayesian hyper-parameter search for \(\lambda\) for the Friedman1 dataset with identity regularization and a generalized sparse grid for different \(T\)s and level four.
 Each learner performed five adaptivity steps refining three points each.
 The results can be seen in \cref{fig:t-vs-mse-friedman1}.
 In this case, the best results were archived for \(T = 1\) and the smallest grid
 size, all other parameters overfit the data.
-This happens, because we used a small version of the Friedman1 dataset --- it
-being an artificially created dataset it would be easy, to create more samples
+This happens because we used a small version of the Friedman1 dataset---it
+being an artificially created dataset, it would be easy to create more samples
 and then fit an arbitrarily large model.
 We can see from this example, that generalised sparse grids allow us to use a
 higher level, which corresponds to a larger amount of grid points with order
@@ -206,65 +197,60 @@ interaction points on demand.
 The parameter \(\lambda\) describes the amount of regularization per
 grid point.
 We can see no trend in the results for the Friedman1 dataset for \(\lambda\).
+Only the value for \(T = -0.5\) is smaller by some orders of magnitude.
 A possible reason for that might be the same reason the sparse grid with \(T =
 1\) showed the best result:
-Except for the \(x_1 \times x_2\) interactions, the Friedman1 model has no
-qualitative interactions, i.e.~they are inherently additive in effect.
+Except for the \((x_1 \times x_2)\) interaction, the Friedman1 dataset has no
+qualitative interactions, i.e.~interactions that are inherently additive in effect.
 This implies that the additional interaction points for larger grids would
 have a rather low surplus, even for an estimator fit without regularization.
 The higher-order grid points thus need a smaller amount of regularization than
 the first-order terms, which explains the small \(\lambda\) for the largest
 grid.
 All other regularization parameters have values that are of similar order, the
-differences could be caused by multiple factors.
-
-The Friedman1 results demonstrated, that generalised grids can help us to use
+differences do not seem to be significant.
+The Friedman1 results demonstrated that generalized grids can help us to use
 grids with a level, that would lead to severe overfitting for normal sparse
 grids.
+
+\begin{table}[tb]
+    \begin{ttable}
+-0.4 & 1.9276e-02 & 8468.7( 206) & 4.703 & 8470.0 & 2.275 & 4.215\\
+0 & 1.9622e-02 & 6678.3( 271) & 4.709 & 6650.0 & 2.286 & 4.184\\
+0.5 & 6.2935e-03 & 1140.4( 239) & 4.771 & 1180.0 & 2.664 & 3.797\\
+0.6 & 1.2700e-02 & 712.7( 242) & 4.781 & 685.0 & 3.398 & 4.308\\
+    \end{ttable}
+\caption[T vs \(\lambda\) for concrete dataset.]{Best results and used \(\lambda\) for different
+  \(T\)s for the concrete dataset and an estimator with level five. The optimal
+  \textsc{rmse} is 1.0.}\label{fig:t-vs-mse-concrete}
+\end{table}
+
+\sidetitle{Concrete}
 We used a similar experiment for the concrete dataset, this time performing 45
 Bayesian search iterations and using estimators with level five.
 For this dataset the chosen level did not lead to overfitting even for the
 highest value of \(T\) and we can therefore use it to discuss the trade-off
-between approximation accuracy and degrees of freedom our proposed method makes.
+between approximation accuracy and grid size our proposed method makes.
 The results can be seen in \cref{fig:t-vs-mse-concrete}.
-
-
 Note that there is a correlation between grid size and the errors: larger grids
 perform better, at least for the cross validation and training error metrics.
-A further increase of the dimension of the approximation space would probably
-soon lead to overfitting.
-Even for our chosen level, we have in the \(T \geq 0.5\) cases more grid points
-than training examples, which leads to an underdetermined linear system.
+A further increase of the level of the approximation space could soon lead to overfitting.
+Even for our chosen level, we have more grid points than training examples in the \(T \geq 0.5\) cases , which leads to an underdetermined linear system.
 We can also see that the decrease in error between the largest grid and the standard sparse grid is rather small, considering the amount of additional grid points needed.
 Note that the estimator with \(T = 0\) has a higher \textsc{cv}- and
 train-\textsc{rmse} than the learner with \(T = -0.4\), but a lower testing
 error.
-This and the fact that the differences are small makes the results hard to
-interpret.
-We can see that the trade-off between error and discretization cost, which the generalised sparse grids make, works.
-\todo{Actually make the comparison here\ldots}
+This and the fact that the differences are small lead to results for which it is
+hard to decide, which choice of \(T\) performed best.
+Because of that we can see that the trade-off between error and discretization cost, which the generalized sparse grids make, works.
+They used fewer grid points to achieve similar errors.
+
 If we compare the performance of the generalised sparse grid with level five and
-\(T = 0.5\) with the standard sparse grid of level four, we can see that the
-generalised grid performs better than the standard grid, even though they both
+\(T = 0.5\) with the standard sparse grid of level four with the same adaptivity
+settings, we can see that the generalised grid performs better than the standard grid, even though they both
 use a similar number of grid points.
-The standard grid with level four needed xxx gridpoints for a \textsc{cv-rmse}
-of xxx, which means that it performed worse for a similar number of degrees of freedom.
-
-As an additional result, generalized sparse grids combined with the diagonal
-matrix regularization functional show further potential.
-An example for this can be seen in \cref{fig:tikhonov-concrete-l5}, which depicts a grid search
-similar to the one in section diagonalxxx, only using level five instead of
-level four and using the generalised sparse grids method with \(T = 0.5\).
-, archiving \ldots.
-
-We can conclude that our proposed method can improve the performance without
-additional cost.
-Because the smoothness constraints for the generalised grids are stronger than
-the assumptions of the standard grid this result does not have to hold for all datasets.
-Even though their performance depends on the feature interactions, it is hard to
-tell the nature of them apart before actually training a model.
-Therefore it seems useful and necessary, to build multiple models with different
-grid types and thus include the granularity of the grid into the model selection process.
+The standard grid with level four needed 1470 gridpoints for a \textsc{cv-rmse}
+of 5.007, which means that it needed more grid points for a worse performance.
 
 \begin{figure}[htb]
   \centering
@@ -274,84 +260,167 @@ grid types and thus include the granularity of the grid into the model selection
   \label{fig:tikhonov-concrete-l5}
 \end{figure}
 
+\todo{Maybe compare the minimums of both quickly?}
+As an additional result, generalized sparse grids combined with the diagonal
+matrix regularization functional show further potential.
+An example for this can be seen in \cref{fig:tikhonov-concrete-l5}, which depicts a grid search
+similar to the one in \cref{sec:tikh-discussion}, only using a level five grid
+with \(T = 0.5\) instead of a level four grid with \(T = 0\).
+
+We can conclude that our proposed method can improve the performance without additional cost.
+Because the smoothness constraints for the generalized grids are stronger than the assumptions of the standard grid, this result does not have to hold for all datasets.
+Even though its performance depends on the relevance of the higher-order-terms, it is hard to predict whether our proposed method will show good results.
+The reason for this is that it is difficult to tell if interactions are relevant for a given dataset in the general case.
+Therefore it seems useful and necessary, to build multiple models with different grid types and thus include the granularity of the grid into the model selection process.
+
 \section{Interaction-Term Aware Sparse Grids}
 As previously noted, sparse grids not only include grid points, which model an original feature, but
 also interaction points.
-We discussed the usage of sparse regularization methods to select the relevant
-grid points, even using a grouping of weights.
+We have seen that sparsity-inducing penalties perform automatic feature
+selection.
+In some cases we are able to make an educated guess which interactions are
+relevant before actually training a model.
+We will introduce a method in this section that allows us to create
+interaction-term aware sparse grids, i.e.~grids that only contain a subset of
+all possible interaction terms.
+We will also present an application for this method: image recognition.
+A discussion of this method can be found in \cite{sparse-parsimony}.
 
-It is possible to guess the relevant interaction terms for some datasets.
-For example, if we have features that represent pixels of an image, we can
-exclude the interactions of pixels that are far away from each other.
-Close-by pixels share more information and their interaction with each other can
-reveal structure in the image, that would stay hidden without them.
-Pixels that are on the opposite side probably do not share enough information to
-make their inclusion worthwhile.
-
-Consider for example an 64-dimensional dataset, where each dimension corresponds
-to a pixel.
+\subsection{Theory}
+\sidetitle{No.~ of Interaction Terms}
 We can calculate the number of included terms for a \(d\)-dimensional dataset
 discretized using a sparse grid of level \(l\) using simple combinatorics:
 \begin{equation*}
-  \operatorname{count-terms}(d, l) = \sum_{k  = 0}^{\max (d, l-1)} \binom{d}{k} 
+  \operatorname{count-terms}(d, l) = \sum_{k  = 0}^{\max (d, l-1)} \binom{d}{k}.
 \end{equation*}
-If we evaluate that equation for the aforementioned 64-dimensional dataset for a
-grid with level 3, we get 2081 terms.
-For a grid with level 4 the same calculation results in 43745 variables.
-A grid that includes such a large number of terms becomes unmanageable soon.
+Because the number of grid points is directly related to the number of chosen
+interaction terms, it is clear that the standard sparse grid technique become
+computationally expensive or infeasible for very high dimensional problems.
+This means that we have to restrict ourselves to a small level and are therefore
+limited to low-order terms.
+If we only interactions between some variables we can use larger levels without increasing the number of interaction terms to an intractable number.
 
-Let \(d\) be a metric that measures closeness between two pixels.
-We can then iterate over each pixel and calculate the distance between it and
-every other pixel.
-If the metric is below a certain threshold, we integrate the interaction into our
-model.
-Note that although this is an \(\BigO(n^2)\) algorithm, it is fast enough for
-our small problem instance.
-Because we still deal with a low amount of pixels, in our case 64, we only need
-to check 256 pairs, which is negligible compared to the actual learning
-process.
-We define two metrics:
+\sidetitle{Nearest Neighbors}
+An example where this technique is useful is image recognition.
+Assume we have a 2-dimensional picture, where each pixel corresponds to a feature.
+We make the following assumption:
+Interactions between pixels that are close to each other spatially are more
+important than interactions between pixels that are further away from each
+other.
+They are more important because they are likely to reveal the structure of the image.
+
+Let \(d\) be a metric that measures the distance between two pixels.
+Examples for widely-used metrics are
 \begin{align*}
-  d(x_1, x_2)_{\Vert \cdot \Vert_2} &= \sqrt{(x_1 - x_2)^2 + (y_1 - y_2)^2},\\
-  d(x_1, x_2)_{\Vert \cdot \Vert_1} &= \vert x_1 - x_2 \vert + \vert y_1 - y_2 \vert,
+  d{(\bm{a}, \bm{b})}_{\Vert \cdot \Vert_2} &= \sqrt{(a_1 - b_1)^2 + (a_2 - b_2)^2},\\
+  d{(\bm{a}, \bm{b})}_{\Vert \cdot \Vert_1} &= \vert a_1 - b_1 \vert + \vert a_2 - b_2 \vert,
 \end{align*}
-which are called the Manhattan and the Euclidean distance respectively.
+which are called the Euclidean and the Manhattan distance respectively.
+We can then calculate the nearest neighbors of each pixel by iterating over all
+other pixels and checking whether the metric is below a certain threshold.
+To calculate all neighbors we simply iterate over each pixel.
+This is not an asymptotically optimal algorithm, we pay \(\BigO(n^2)\) for all
+features.
+Even though more efficient algorithms exist, our method is good enough, because
+we only have to calculate the neighbors once per dataset which is negligible
+compared to the cost of training the actual model.
+After calculating the neighbors, we can generate the interactions from them.
+They are given by all \(i \leq \max(d, l-1)\) long combinations of all possible
+neighbors for each pixel, where \(i\) is an arbitrarily chosen value.
+This means that it is possible, to create grids with a high level without some
+higher-order terms.
+For example, it is possible to create a grid with level six, but only use the
+interactions up to order four.
+In fact, it is useful to start with a low-level grid but to use higher-order interaction terms during refinement.
+This recovers the usual behavior of non-interaction-term aware sparse grids.
+
+\begin{figure}[hbt]
+  \centering
+  \begin{subfigure}[b]{0.4\textwidth}
+    \centering
+    \includegraphics{{{nn_l1}}}
+    \caption{\(d{(\bm{a}, \bm{b})}_{\Vert \cdot \Vert_2} \leq 2\)}
+  \end{subfigure}
+  ~
+   \begin{subfigure}[b]{0.4\textwidth}
+    \centering
+    \includegraphics{{{nn_l2}}}
+    \caption{\(d{(\bm{a}, \bm{b})}_{\Vert \cdot \Vert_1} \leq \sqrt{2}\)}
+  \end{subfigure}
+  \caption{Nearest Neighbors for two different metrics. The darkest point is the
+  origin, the other colored points are its neighbors.}\label{fig:neighbors-cmp}
+\end{figure}
+
+\begin{algorithm}[h]
+  \caption{Nearest Neigbors}\label{alg:neigbors}
+  \begin{algorithmic}[1]
+    \Require{Set of all pixels \(p\), distance metric \(d \from (\mathbb{R}^2, \mathbb{R}^2) \to \mathbb{R}\), threshold \(t\) }
+    \Statex
+    \Function{NearestNeighbors}{$p, d, t$}
+    \Let{neighbors}{vector<vector<int>>()}
+    \For{\(a \in p\)}
+      \For{\(b \in p\)} \Comment{Each pixel is its own neighbor in our case.}
+      \If{\(d(a,b) \leq t\)}
+      \State\Call{append}{curNeighbors, y}
+      \EndIf
+      \EndFor
+    \State\Call{append}{neighbors, curNeighbors}
+    \EndFor
+    \State\Return{neighbors}
+    \EndFunction
+  \end{algorithmic}
+\end{algorithm}
 
 \subsection{Implementation}
-Similar to the implementation of the generalised sparse grids we only needed to
-make some small changes to the grid generation algorithm.
-The idea is to pass an additional parameter to the generating function that
-determines the interaction terms we want to integrate into the model.
-This parameter is a list of interactions, each interaction is modelled as a list
-of dimensions that should interact with each other.
-The list is then converted to a hash set, that stores one boolean vector for
-each interaction.
-Each entry of this vector is true if the dimension should be used and false
-otherwise.
-We then encode each point that would be included by the standard grid generation
-process in the same manner, and check if the resulting vector is included in our
-hash set before it is included in the model.
+Similar to the implementation of the generalised sparse grids we need to
+make some small adjustments to the grid generation algorithm described in \cref{alg:gen-sg}.
+We pass an additional parameter to the function \textsc{GridGeneration} that determines the interaction terms we want to integrate into the model.
+This parameter is a list of interactions, each interaction is modelled as a list of dimensions that should interact with each other.
+The list is then converted to a hash set that stores one boolean vector for each interaction.
+Each entry of this vector is true if the dimension should be used and false otherwise.
+For example a \((x_1 \times x_2)\) interaction for a 3-dimensional dataset is
+modelled as the vector \((1, 2)\) and the corresponding boolean vector is then given by (\emph{true}, \emph{true}, \emph{false}).
+
+We then only need to modify the function \textsc{createPointAt} (called in line 17).
+Before creating the grid point, we check if the new grid point models a desired
+interaction.
+Each possible new point is encoded in the same manner as the interactions, as a
+boolean vector that indicates the used dimensions.
+The decision, whether a grid point should be included amounts to a simple check,
+if the possible new dimension-combination is contained in the aforementioned
+hash set.
+
+We have to make the same adjustments to the adaptivity procedure.
+Our implementations is simple, because we leverage the existing adaptivity
+procedure of the \textsc{sgpp} implementation.
+We implemented a class HashRefefinementInteraction that inherits from the base
+class HashRefinement.
+This base class implements the actual refinement procedure, the subclass leaves
+all but one function unchanged.
+The function \textsc{createGridPoint} is called to create the new grid points.
+We modify this function in a straight forward way:
+Before each point is added to the model, we perform the same check as in the
+method \textsc{createPointAt}.
+
 This implementation strategy is efficient due to the underlying implementations.
-It costs us \(\BigO(1)\) operations to check if an element is contained in the
-set, which is both asymptotically optimal and efficient in practice.
-The boolean vector in the \emph{C++} standard library is implemented as a bitfield, which allows us to save space.
-Our proposed implementation strategy has one major drawback:
-For example, if we decide to include the interaction \(x_1 \times x_2 \times
-x_3\) into our model, the grid points for the pairwise interactions (e.g.~ \(x_1
-\times x_2\)) are also created.
-This is not a problem for statistical inference, because it is standard practice
-to include all lower-order interactions anyway.
-The reason for that is, that when we assume there is an interesting interaction
-between multiple grid points, we also assume that the original grid points and
-their interactions are relevant for the model.
+It costs us \(\BigO(1)\) operations to check if an element is contained in the set, which is both asymptotically optimal and efficient in practice.
+The boolean vector in the \emph{C++} standard library is implemented as a
+bitfield, which results in a lower space overhead.
 
 \subsection{Results \textit{\&} Discussion}
-We use a version of the classical \textsc{mnist}-dataset, obtained from the
+To check the validity of the interaction-term aware sparse grids and of the
+nearest neighbor approach for images, we use a version of the classical \textsc{mnist}-dataset, obtained from the
 \textsc{uci} machine learning repository~\cite{datasets-uci}.
 The goal of this dataset is to use hand drawn pictures of one digit each to
 classify the digit depicted.
+\begin{figure}[htb]
+  \centering
+  \includegraphics[width=\textwidth]{optdigits}
+  \caption{Some examples for digits}
+  \label{fig:optdigit-images}
+\end{figure}
 Our version of the dataset is composed of 64-features, each one represents one
-gray pixel, all features are in the range 0--15.
+gray-scale pixel in the range 0--15.
 Trying to construct a sparse grid for such a highly dimensional dataset is
 possible for small levels and becomes highly intractable for larger levels.
 This is why we need to exclude most of the interaction terms.
@@ -362,8 +431,25 @@ which leads to a \(3 \times 3\) convolution.
 An example of this can be seen in figure xx.
 The effect on the grid sizes for some different metrics are shown in table xxx.
 
+\begin{figure}[htb]
+  \centering
+  \includegraphics{interaction_sizes}
+  \caption{Comparison of grid sizes with standard and interaction-term aware
+    sparse grids for the optical digits dataset.}
+  \label{fig:optdigit-gridsize}
+\end{figure}
+
+\todo{Use full dataset for tsne plot!}
+\begin{figure}[htb]
+  \centering
+  \includegraphics[width=\textwidth]{tsne_optdigits}
+  \caption{\textsc{T-sne} plot of the optdigits dataset}
+  \label{fig:optdigit-tsne}
+\end{figure}
+
+\sidetitle{Estimating \(\lambda\)}
 Because we have to train one regression learner for each class it takes a rather
-long time to generate a model, which in practice means that a grid search for
+long time to generate a model, which in practice meant that a grid search for
 the regularization parameter was infeasible.
 This is why we tried to find an approximation by using only a three-class subset
 of the dataset for this purpose.
@@ -381,8 +467,15 @@ optimal, but it should be good enough.
 Finally we performed a grid search for \(\lambda\) using a ridge regularized model with level
 three and the aforementioned choice of interaction terms.
 We used a three-fold stratified cross validation metric to compare the models.
-The estimated parameters can be seen in fig/table xxx.
+The best learner achieved an \textsc{cv}-accuracy of 100\% on this subset with
+\(\lambda = 0.1\).
+Of course, this is not a good estimate for the error on the complete dataset,
+but still delivers a solid estimate for the regularization parameter.
+The results also showed that the choice of \(\lambda\) does not influence the
+validation accuracy heavily as a learner with \(\lambda = 10^{-12}\) achieved a
+\textsc{cv}-accuracy of about 99.91.
 
+\sidetitle{Final Model}
 Using our approximated best regularization parameter we then created two models,
 one using no adaptivity and one, where we performed two adaptivity steps
 refining ten points each.
@@ -394,11 +487,11 @@ Combining our proposed grid generation scheme with adaptivity allowed us to
 further improve our results, \ldots.
 
 We can see, that the usage of knowledge about the structure of images can help
-us considerably.
-The performance of this method is comparable with a standard adaptive sparse
-grid learner and the combination of both methods leads to very strong results.
-
-
+us considerably by using grind-points with higher information content.
+Another effect of our proposed method is that we can use a higher level, because
+we exclude many interaction terms.
+This results in grids that achieve competitive results compared to more costly
+adaptive grids.
 
 %%% Local Variables:
 %%% mode: latex
