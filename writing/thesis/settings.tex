@@ -7,6 +7,9 @@
 \usepackage[euler-digits,small]{eulervm}
 \setkomafont{disposition}{\normalfont\bfseries}
 \frenchspacing
+\usepackage{pifont}% http://ctan.org/pkg/pifont
+\newcommand{\cmark}{\ding{51}}%
+\newcommand{\xmark}{\ding{55}}%
 
 \usepackage[american]{babel}
 \usepackage[autostyle, english = american]{csquotes}
@@ -91,7 +94,7 @@
 \usepackage{titletoc}
 
 \titlecontents{chapter}
-  [0cm]{\bf \raggedleft\parshape 1 1cm \dimexpr\linewidth-3cm\relax}
+  [0cm]{\bfseries \raggedleft\parshape 1 1cm \dimexpr\linewidth-3cm\relax}
   {\noindent\rule{4cm}{0.1pt}\\ \contentslabel{1.5em}}{}{\hspace{0.8em}\textbullet\hspace{0.8em}\makebox[1em][l]{\thecontentspage}
   }
 
@@ -100,7 +103,7 @@
   {\contentslabel{2em}}{}{\hspace{0.8em}\textbullet\hspace{0.8em}\makebox[1em][l]{\thecontentspage}}
 
 \titlecontents{subsection}
-  [0cm]{\it \raggedleft\ \parshape 1 1cm \dimexpr\linewidth-3cm\relax}
+  [0cm]{\itshape \raggedleft\ \parshape 1 1cm \dimexpr\linewidth-3cm\relax}
   {\contentslabel{2.5em}}{}{\hspace{0.8em}\textbullet\hspace{0.8em}\makebox[1em][l]{\thecontentspage}}
 
 

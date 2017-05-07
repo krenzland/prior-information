@@ -4,36 +4,63 @@
 Over the course of this thesis we discussed many useful ways to use prior
 knowledge to enhance the capabilities of the sparse grid model for machine
 learning.
+The main results can be summarized as follows:
+\begin{itemize}
+\item We presented an improved Gaussian prior in \cref{cha:tikh}.
+The diagonal Tikhonov functional used only information about the smoothness of the dataset, which applies to many real world data sets and is therefore a rather mild assumption.
+After we convinced ourselves that the prior indeed improved the performance for
+data, which adhered to our assumptions, we tested the penalty on non-artificial datasets.
 
-We compared multiple regularization penalties, which allow us to impose a prior
-on the weights.
-The diagonal Tikhonov functional uses only information about the smoothness of
-the real-world function, which applies to many real world data sets and is
-therefore a rather mild assumption.
-Knowledge about the sparsity of the weights indicate that one of the presented
-sparsity-inducing penalties can be helpful.
-Such information arises naturally from problems, where we know that our signal
-is inherently sparse.
-It also allows us to use a model with many degrees of freedom by selecting the
-important basis functions automatically.
+We achieved solid results for the concrete and the power plant datasets.
+In case of the power plant dataset, we have been able to double the effect regularization had on the \textsc{rmse}.
+\item In \cref{sec:sparse-penalties} we presented three sparsity-inducing
+  penalties: the lasso, the elastic net and the group lasso.
+  All methods used different prior knowledge.
+  The lasso resulted in a Laplace prior, which the elastic net combined with
+  a Gaussian prior to achieve better theoretical performance for correlated
+  predictors.
+  We also showed an adaptation of the group lasso to sparse grids and presented a
+  way to group the grid points.
+  This allowed us to impose sparsity on a original feature level, and not on a
+  grid point level.
 
-In the second chapter we developed methods that are able to create sparse grids
-that encode our knowledge about the importance of the feature interactions.
-The generalised sparse grids can be used to alter the number of higher-order
-terms without changing the number of grid points that correspond directly to a
-feature.
-If we have more information about the importance of the interactions we can
-exclude higher-order terms that probably contain less information.
-This turned out to be extremely helpful for our image recognition problem, where
-we used the method to implement a convolutional sparse grid, that achieved
-competitive results.
+  We were able to improve upon the performance of the ridge regularization for
+  the concrete dataset using high levels.
+  The resulting degrees of freedoms were similar for both the lasso and the ridge regularization for the concrete dataset.
 
-All in all we have shown that prior knowledge can be useful for all used
-datasets.
-In some cases our prior knowledge only consisted of very mild assumptions that
-should apply to most datasets.
-These methods can therefore be used for all-purpose learning and are not limited
-to a certain problem category.
+  Finally we implemented and discussed an optimal first-order solver \fista that was able to optimize the non-differentiable penalties.
+\item We showed in \cref{sec:generalised-sg} that generalized sparse grids can be
+  applied to machine learning problems.
+  This method can be used to control the granularity of the grid and thus helped
+  us to use a larger level.
+  More importantly, we presented intuition why the method works for data mining
+  problems:
+  Generalized grids change the number of interaction points, while keeping the number of basis functions that model only one feature constant.
+  We were able to show that this method helped us to avoid overfitting for the Friedman1 dataset.
+
+  The results for the concrete dataset were twice-fold useful.
+  Firstly, we showed that a grid that is closer to a full grid can achieve better results than an ordinary sparse grid.
+  Secondly, we showed that a generalized sparse grid can still retain most of its accuracy while vastly reducing the number of grid points.
+\item The effectiveness of interaction-term aware sparse grids was shown in \cref{sec:interaction-sg}.
+  This technique allowed us to specify which interactions we want to include in
+  the model.
+  We showed how this can be used to decrease the number of grid points and thus
+  allowed us to cope with a 64-dimensional dataset.
+
+  The relevant interactions were chosen by a nearest-neighbor approach, where we selected interactions only between pixels that were spatially close to
+  each other.
+  The results for the optical digits dataset were competitive with an adaptive
+  sparse grid and presented an useful trade-off between error and cost.
+\end{itemize}
+
+We have seen that it is indeed useful to use information about datasets to improve the performance of the sparse grids technique.
+In some cases, our prior knowledge only consisted of very mild assumptions that should apply to most datasets.
+These methods can therefore be used for all-purpose learning and are not limited to a certain problem category.
+All methods lead to competitive results and were able to create more efficient grids.
+
+The methods contained in this thesis are only a small subset of possible ways
+how prior knowledge can improve the performance of learners.
+Nevertheless, they represent a useful selection of flexible methods.
 
 %%% Local Variables:
 %%% mode: latex

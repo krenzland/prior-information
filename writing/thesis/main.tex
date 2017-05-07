@@ -1,9 +1,9 @@
 \RequirePackage[l2tabu,orthodox]{nag}
-\documentclass[chapterprefix, headsepline,footsepline,footinclude=false,twoside,fontsize=11pt,paper=a4,listof=totoc,bibliography=totoc]{scrbook}
+\documentclass[chapterprefix, headsepline,footsepline,footinclude=false,oneside,fontsize=11pt,paper=a4,listof=totoc,bibliography=totoc]{scrbook}
 
 \input{settings}
 
-\newcommand*{\getUniversity}{Technische Universität München}
+\newcommand*{\getUniversity}{Technical University of Munich}
 \newcommand*{\getFaculty}{Department of Informatics}
 \newcommand*{\getTitle}{Integration of Prior Knowledge for Regression and
   Classification with Sparse Grids}
@@ -11,9 +11,9 @@
   Klassifikation mit dünnen Gittern}
 \newcommand*{\getAuthor}{Lukas Krenz}
 \newcommand*{\getDoctype}{Bachelor's Thesis in Informatics}
-\newcommand*{\getSupervisor}{Prof. Dr. Bungartz}
-\newcommand*{\getAdvisor}{Valeriy Khakhutskyy}
-\newcommand*{\getSubmissionDate}{\today}
+\newcommand*{\getSupervisor}{Univ.-Prof.~Dr.~Hans-Joachim Bungartz}
+\newcommand*{\getAdvisor}{Valeriy Khakhutskyy, M.Sc.}
+\newcommand*{\getSubmissionDate}{September 15, 2016}
 \newcommand*{\getSubmissionLocation}{Munich}
 
 \begin{document}
@@ -29,7 +29,12 @@
 \input{pages/acknowledgements}
 \input{pages/abstract}
 \microtypesetup{protrusion=false}
-\tableofcontents{}
+{\makeatletter
+\let\old@makeschapterhead\@makeschapterhead
+\def\@makeschapterhead{\vspace*{-2.5cm}\old@makeschapterhead}
+\tableofcontents
+}
+%\tableofcontents{}
 \microtypesetup{protrusion=true}
 
 \mainmatter{}
@@ -42,7 +47,6 @@
 \appendix{}
 \input{chapters/datasets}
 \microtypesetup{protrusion=false}
-\listoftodos{}
 \microtypesetup{protrusion=true}
 \printbibliography{}
 

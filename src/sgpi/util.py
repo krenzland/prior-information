@@ -5,7 +5,7 @@ import sklearn.preprocessing as pre
 import sklearn.cross_validation as cv
 from sklearn.cross_validation import KFold, StratifiedKFold
 from scipy import stats
-from scipy.sparse.linalg import LinearOperator
+from scipy.sparse.linalg import LinearOperator, svds
 from pysgpp import DataMatrix, DataVector
 import pysgpp as sg
 
@@ -151,7 +151,7 @@ def group_list(grid):
             glist[i] = group
     return glist
 
-def get_Phi(grid, X_train):
+def get_Phi(grid, X_train, svd=False):
     def eval_op(x, op, size):
         result_vec = sg.DataVector(size)
         x = sg.DataVector(np.array(x).flatten())
@@ -175,8 +175,13 @@ def get_Phi(grid, X_train):
     shape = (num_elem, grid.getSize())
     linop = LinearOperator(shape, matvec, rmatvec, dtype='float64')
 
-    Phi = linop.matmat(np.matrix(np.identity(grid.getSize())))
-    return Phi
+    if svd:
+        k = min(grid.getSize(), X_train.shape[0])
+        _, s, _ = svds(linop, k=k - 1)
+        return s
+    else:
+        Phi = linop.matmat(np.matrix(np.identity(grid.getSize())))
+        return Phi
 
 def get_max_lambda(Phi, y, num_points, num_rows, l1_ratio=1.0):
     max_prod = 0

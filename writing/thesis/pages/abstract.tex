@@ -7,8 +7,27 @@ Because some regularization penalties are not differentiable, we discuss the fas
 Furthermore, we modify the grid generation procedure.
 The first discussed method is generalized sparse grids, which allows us to control the granularity of the grid.
 The second method is interaction-term aware sparse grids, which are used to construct smaller and more efficient grids for image recognition problems.
-All methods were implemented with the SG++ library and showed promising results for both artificial and real-world datasets.
+All methods were implemented with the \emph{SG++} library and showed promising results for both artificial and real-world datasets.
 
+\section*{Zusammenfassung}
+Diese Bachelorarbeit diskutiert verschiedene Wege, vorheriges Wissen über
+Datensätze auf das Lernen mit dünnen Gittern zu übertragen.
+Wir führen die Tikhonov Regularisierung ein, die Informationen über die
+Glattheit der Funktion, die wir approximieren wollen, benutzt.
+Wir präsentieren außerdem die Regularisierungsmethoden Lasso, Elastic Net und
+Group Lasso, die alle zu dünnbesetzten Lösungsvektoren führen.
+Die verschiedenen Methoden werden mit der klassischen Ridge-Regularisierung
+verglichen.
+Weil einige Funktionale nicht differenzierbar sind, diskutieren wir den ``Fast
+Iterative Shrinkage Thresholding'' Algorithmus, und zeigen, wie er mit den neu
+hinzugefügten Regularisierungsmethoden benutzt werden kann.
+Desweiteren modifizieren wir den Gittergenerierungsalgorithmus.
+Die erste Methode heißt verallgemeinerte dünne Gitter und erlaubt uns, die
+Granularität der Gitter zu verändern.
+Die zweite diskutierte Methode sind Gitter, die Wissen über Interaktionsterme
+benutzen, was nützlich für bildverstehende Verfahren ist.
+Alle Methoden wurden mit Hilfe der \emph{SG++} Bibliothek implementiert und zeigten
+vielversprechende Ergebnisse für künstliche und echte Datensätze.
 %%% Local Variables:
 %%% mode: latex
 %%% TeX-master: "../main"

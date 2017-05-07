@@ -2,7 +2,7 @@
 
 import sys, os
 sys.path.append(os.path.abspath(os.path.join('..', 'src/')))
-from sgpi.util import get_dataset, get_xy, get_r_squared, split
+from sgpi.util import get_dataset, get_xy, get_r_squared, split, get_cv
 from sgpi import model
 from sgpi.learner import SGRegressionLearner
 from sgpi.bayes import BayesOptReg, Hyp_param
@@ -27,20 +27,27 @@ def config():
 
 @ex.automain
 def main(level, num, num_init, T, dataset, _log):
-    df = get_dataset(dataset)
-    train, test = split(df)
-    X_train, y_train = get_xy(train)
-    X_test, y_test = get_xy(test)
+    sg.omp_set_num_threads(4)
+    if 'optdigits' in dataset:
+        df_train = get_dataset('optdigits_train')
+        df_test = get_dataset('optdigits_test')
+        X_train, y_train = get_xy(df_train)
+        X_test, y_test = get_xy(df_test)
+    else:
+        df = get_dataset(dataset)
+        train, test = split(df)
+        X_train, y_train = get_xy(train)
+        X_test, y_test = get_xy(test)
     _log.debug("Read file.")
 
     session = model.make_session()
     _log.debug("Created SQL session.")
 
     grid_config = model.GridConfig(type=6, level=level, T=T)
-    adaptivity_config = model.AdaptivityConfig(num_refinements=5, no_points=3, treshold=0.0, percent=0.0)
+    adaptivity_config = model.AdaptivityConfig(num_refinements=0, no_points=0, treshold=0.0, percent=0.0)
     epsilon = np.sqrt(np.finfo(np.float).eps)
     solver_type = sg.SLESolverType_CG
-    solver_config = model.SolverConfig(type=solver_type, max_iterations=50, epsilon=epsilon, threshold=10e-5)
+    solver_config = model.SolverConfig(type=solver_type, max_iterations=70, epsilon=epsilon, threshold=10e-5)
     final_solver_config = model.SolverConfig(type=solver_type, max_iterations=250, epsilon=epsilon, threshold=10e-6)
     # solver_type = sg.SLESolverType_FISTA
     # solver_config = model.SolverConfig(type=solver_type, max_iterations=200, epsilon=0.0, threshold=10e-5)
@@ -51,11 +58,15 @@ def main(level, num, num_init, T, dataset, _log):
 
     _log.debug("Created configurations.")
 
+    interactions = [[0,1]] + [[i] for i in range(0,11)]
+    #interactions = None
+    grid_config.interactions = str(interactions)
     estimator = SGRegressionLearner(grid_config, regularization_config, solver_config,
-                                    final_solver_config, adaptivity_config)
-    cv = KFold(X_train.shape[0], n_folds=10)
+                                    final_solver_config, adaptivity_config, interactions)
+
+    cv = get_cv(dataset, X_train)
     experiment.cv = str(cv)
-    params = [Hyp_param('regularization_config__lambda_reg', 0.0, 0.001)]
+    params = [Hyp_param('regularization_config__lambda_reg', 0.0, 0.3)]
               #Hyp_param('regularization_config__exponent_base', 3.0, 7.0)]
 
     bayes_search = BayesOptReg(estimator, cv, X_train, y_train,

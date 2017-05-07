@@ -1,43 +1,50 @@
 \chapter{Regularization Methods\label{cha:regularization}}
 During the discussion of \cref{eq:optGoal} we neglected the regularization
-operator \(\mathcal{S} \from \mathbb{R}^d \to \mathbb{R}\), which is the focus
-of the current chapter.
-This chapter starts with a short introduction to statistical regularization
-theory and then compares two groups of regularization methods:
+operator \(\mathcal{S} \from \mathbb{R}^d \to \mathbb{R}\).
+In this chapter we focus on this operator exclusively.
+We start with a short introduction to statistical regularization theory and then compare two groups of regularization methods:
 Tikhonov regularization and sparsity-inducing penalties.
 
+We will use the \(l_p\)-norms for vectors
+\begin{align*}
+  \Vert \bm{\alpha} \Vert_p & = \left (\sum_{a \in \bm{\alpha}}  \vert a \vert^p \right)^{\frac{1}{p}},\\
+  \lim_{p \to \infty} \Vert \bm{\alpha} \Vert_p & = \max_{a \in \bm{\alpha}} a
+\end{align*}
+in this chapter.
+
 \section{Regularization Theory}
-Regularization helps us to train models that not only fit the data, but also generalize well.
+Regularization helps us to train models that not only fit the data but also generalize well.
+\sidetitle{Bias-Variance trade-off}
 To understand how regularization works, it is helpful to decompose our error functional.
 Our model assumes that there is a relation between the predictors \(\bm{x}\) and the target variable \(y\) that can be expressed as
 \begin{equation*}
   y = f(\bm{\alpha}) + \varepsilon,\, \varepsilon \sim \mathcal{N}(0, \sigma^2),
 \end{equation*}
-where \(f(\bm{\alpha})\) is the function we want to approximate.
+where \(f(\bm{\alpha})\) is the function we want to approximate and \(\varepsilon\) is normally distributed noise.
 Consider the expected prediction error at a point \(\bm{x}\)~\cite{esl}:
 \begin{align}
   \label{eq:bias-variance}
-  \text{Pred.~error}\left( \bm{x} \right) = \Exp \left[ \left(y - \hat{f}(\bm{x}) \right)^2 \right] &=
+  \text{Pred.~error}\left( \bm{x} \right) = \Exp \left[ \left(\bm{y} - \hat{f}(\bm{x}) \right)^2 \right] &=
               \Bias\left[\hat{f}(\bm{x}) \right]^2 + \Var\left[\hat{f}(\bm{x})\right] + \sigma^2 \intertext{with}
-  \Bias \left[ \hat{f} (\bm{x}) \right] &= \Exp \left[\hat{f}(\bm{x})\right] - f(\bm{x}), \nonumber \\
+  \Bias \left[ \hat{f} (\bm{x}) \right] &= \Exp \left[\hat{f}(\bm{x}) - f(\bm{x})\right], \nonumber \\
   \Var \left[ \hat{f} (\bm{x}) \right] &= \Exp \left[ \hat{f}(\bm{x}) - \Exp \left[ \hat{f}(\bm{x}) \right]^2 \right] \nonumber,
 \end{align}
-where \(\hat{f}(x)\) denotes our approximation of the real function \(f(\bm{x})\).
-\sidetitle{Bias-Variance trade-off}
+where \(\hat{f}(\bm{x})\) denotes our approximation of the real function \(f(\bm{x})\).
 We call \cref{eq:bias-variance} the bias-variance trade-off.
 This equation splits the error into three different parts:
 \begin{description}
 \item[Bias] is the error caused by assumptions the model makes,
-\item[Variance] is the error caused by noise in the training data,
-\item[Irreduziable Error (\(\sigma\))] is the error caused by noise that is inherent to the relation between the predictors and the target variable.
+\item[Variance] is the fluctuation of the model around the mean,
+\item[Irreducible Error (\(\sigma\))] is the error caused by noise that is inherent to the relation between the predictors and the target variable.
 \end{description}
 
-Following the principle of \emph{Occam's razor}---parsimonious models are better---all regularization methods penalize complexity.
+\sidetitle{Occam's razor}
+Following the principle of Occam's razor---parsimonious models are better---all regularization methods penalize complexity.
 Using regularization leads to smaller and simpler models, which increases the bias.
 Of course, increasing this part of the error term makes no sense, if we would not get a payoff.
-Regularization decreases the variance, thus making our model more robust to the possibly noisy data.
+Regularization decreases the variance, thus making our model more robust.
 In this chapter we consider regularization methods that have both a scaling
-parameter, that controls the strength of our simplicity assumptions, and (sometimes) parameters, that we use to modify the kind of our assumptions.
+parameter, that controls the strength of our simplicity assumptions, and (sometimes) parameters that we use to modify the kind of our assumptions.
 We call the parameter that controls the regularization strength \(\lambda\).
 
 \sidetitle{Finding \(\lambda\)}
@@ -45,7 +52,9 @@ The choice of this parameter is important:
 If we increase \(\lambda\), we exchange more bias for variance.
 This is why \cref{eq:bias-variance} implies a trade-off---we cannot have the cake and eat it too!
 We usually find the ideal \(\lambda\) by a more-or-less intelligent trial and error process.
-To do this, we train a predictor for each \(\lambda\) we want to consider on a subset of our data (called the training set), and test its performance using either cross-validation or a separate (holdout) validation set. 
+To do this, we train a predictor for each \(\lambda\) we want to consider on a
+subset of our data (called the training set), and test its performance using
+cross-validation (\textsc{cv}). 
 
 \sidetitle{Prior Information}
 Another way to reason about regularization is as a method to encode our
@@ -56,23 +65,26 @@ effect of our assumptions.
 
 The choice of the regularization functional is crucial.
 We do not know which one performs best without training a model.
-Sometimes we can encode knowledge about the dataset structure, but this is often
+Sometimes we can encode knowledge about the dataset structure but this is often
 quite difficult.
-Each method encodes different assumptions, but all have in common that they
+Each method encodes different assumptions but all have in common that they
 decrease the model complexity.
 
 \section{Tikhonov Regularization}\label{cha:tikh}
-Tikhonov regularization was discovered by \ldots
+Tikhonov regularization is one of the most commonly used regularization methods for ill-posed problems.
+It is also widely used to regularize regression, which leads to solutions with a larger bias but with a smaller variance.
+We will show the general form of this penalty first and then adapt the penalty to sparse grid learning.
+
 \subsection{Theory}
 We can use Tikhonov regularization by setting the regularization penalty
 \(\mathcal{S}\) in \cref{eq:optGoal} to
 \begin{equation}\label{eq:tik-langrangian}
 \mathcal{S} = \Vert \bm{\Gamma} \bm{\alpha} \Vert_2^2,
 \end{equation}
-where \(\bm{\Gamma}\) is a linear operator of the same form as \(\bm{\Phi}\).
+where \(\bm{\Gamma}\) is a linear operator.
 The overall optimization goal is then given by
 \begin{equation}\label{eq:tik-optGoal}
- \min_{\bm{\alpha}} \Vert \bm{\Phi} \bm{\alpha} - \bm{y} \Vert_2^2 + \lambda \Vert \bm{\Gamma} \bm{\alpha} \Vert_2^2.
+ \min_{\bm{\alpha}} \Vert \bm{\Phi} \bm{\alpha} - \bm{y} \Vert_2^2 + n \lambda \Vert \bm{\Gamma} \bm{\alpha} \Vert_2^2.
 \end{equation}
 We can also view this problem in the constraint minimization form
 \begin{align}\label{eq:tik-constrained}
@@ -81,14 +93,14 @@ We can also view this problem in the constraint minimization form
 \text{subject to} \quad &  \Vert \bm{\Gamma} \bm{\alpha}  \Vert_2^2 \leq l,
 \end{align}
 for a certain constant \(l\). 
-We can see from this formulation that Tikhonov regularization forces our scaled weights \(bm{\alpha}\) to lie inside a \(d\)-dimensional sphere with a diameter of length \(l\).
+We can see from this formulation that Tikhonov regularization forces our scaled weights \(\bm{\alpha}\) to lie inside a \(d\)-dimensional sphere with a diameter of length \(l\).
 There is an one-to-one correspondence between \(l\) in~\cref{eq:tik-constrained} and \(\lambda\) in~\cref{eq:tik-optGoal}.
 Both variables determine the constraints.
 Tikhonov regularization fits into a Bayesian framework.
 We can interpret it as a multivariate-Gaussian prior on the weights with zero mean and covariance matrix \(\bm{\Gamma}^{-1}\)~\cite{stat-inverse}.
-The weights are therefore distributed as
+The prior is thus distributed as
 \begin{equation}\label{eq:diagonal-prior}
-\alpha \sim \mathcal{N} (0, \bm{\Gamma}^{-1}).
+\bm{\alpha} \sim \mathcal{N} (0, \bm{\Gamma}^{-1}).
 \end{equation}
 
 A common choice for \(\bm{\Gamma}\) is the identity matrix as proposed in~\cite{spatAdaptGrid}.
@@ -97,14 +109,14 @@ It is a Gaussian prior with the identity matrix as its covariance matrix.
 In statistics, this method is called ridge regression~\cite{esl}.
 
 \sidetitle{Diagonal Matrix}
-Tikhonov regularization assumes that all weights are distributed with the same variance.
-Luckily, we can do better for the sparse grid methods.
+The identity Tikhonov matrix assumes that all weights are distributed with the same variance.
+Luckily, we can do better for the sparse grid method.
 Following the assumption of \cref{eq:coefficients-h2mix}, we can express every
 function \(f \in H_2^{\text{mix}}\) as a weighted sum of basis functions.
 For these functions the following upper bound on the hierarchical coefficients \(\alpha_{\bm{l, i}}\) holds:
 \begin{equation}\label{eq:weights-bound}
   \vert \alpha_{\bm{l, i}} \vert \leq 2^{-d -2 \vert \bm{l} \vert_1} \cdot \Vert D^{\bm{2}} f \Vert_{\infty} 
-                              \in \BigO \left( 2^{-2 \vert \bm{l} \vert_1} \right)
+                              \in \BigO \left( 2^{-2 \vert \bm{l} \vert_1} \right),
 \end{equation}
 where the differential operator norm only depends on the function \(f\) and neither on the dimension nor the level of the basis functions~\cite{bungartzSparse}.
 Because the dimension is constant for a given grid we can safely exclude it.
@@ -113,20 +125,20 @@ This fact can be used to implement a regularization method that is better suited
 We impose an improved prior on the weights using Tikhonov regularization
 with the matrix
 \begin{equation}\label{eq:diagonal-matrix}
-\bm{\Gamma}_{i,i}^{1} = c^{\vert l \vert_1 - d},
+\bm{\Gamma}_{i,i} = c^{\vert \bm{l} \vert_1 - d},
 \end{equation}
-with a constant \(c\).
+for a constant \(c\)~\cite{sparse-parsimony}.
 For \(c = 4\) this corresponds to a prior on the variance of the weights that is identical to the upper bound given by \cref{eq:weights-bound} up to a multiplicative constant.
 A different \(c\) can be used as well, we can either treat \(c\) as an inherent property of the method or as an additional hyper-parameter.
 We use the dimension \(d\) as a normalizing factor, this way the prior
 corresponds to the series \((1, \nicefrac{1}{4}, \nicefrac{1}{16}, \ldots)\).
-The resulting prior is depicted in \vref{fig:diagonal} for a two dimensional grid.
+The resulting prior is depicted by \cref{fig:diagonal} for a two dimensional grid.
 
 \begin{figure}[htb]
   \centering
-  \includegraphics[width=0.6\textwidth]{diagonal}
+  \includegraphics[width=0.7\textwidth]{diagonal}
 \caption[Diagonal Regularization]{
-Prior generated by \cref{eq:diagonal-matrix} for a two dimensional grid with level two.
+Prior generated by \cref{eq:diagonal-matrix} for a two dimensional grid with level four.
 Each number is centered on a grid point and
 corresponds to the prior for that particular weight.
 }\label{fig:diagonal}
@@ -135,26 +147,29 @@ corresponds to the prior for that particular weight.
 \FloatBarrier{}
 
 \subsection{Implementation}
-\todo{Maybe create a class diagram for the implementation of the DiagonalMatrix?}
 Each regularization method that can be used with the conjugated gradient solver
-is implemented in the \textsc{sgpp} by specialising the super class
-OperationMatrix that offers a method called ``mult'' which accepts a weight
+is implemented in the \emph{SG++} library by specializing the base class
+\emph{OperationMatrix} that offers a method called \textsc{mult}, which accepts a weight
 vector and returns a scaled version of the weights.
-The OperationMatrix for the standard ridge regularization returns its input
+The \emph{OperationMatrix} for the standard ridge regularization returns its input
 weights unchanged.
 
-The DiagonalMatrix implementation has multiplies each input weight with the
-corresponding inverse prior.
-We calculate the multiplier for each weight during the first call of the
-multiplication method and cache it until the grid size changes.
-This means that we only need to perform this calculation once per refinement
-step.
-We determine the multiplier for each grid point by simple iterating over all
-existing grid points and save the reciprocal of the result of \cref{eq:diagonal-matrix}.
+For our implementation we created a class \emph{OperationDiagonal} that inherits
+from \emph{OperationMatrix}.
+The constructor accepts an argument that allows the specification of the
+exponent base \(c\).
+Its implementation of \textsc{mult} multiplies each input weight with the corresponding inverse prior.
+We calculate the multiplier for each weight during the first call of the multiplication method and cache it until the grid size changes.
+This means that we only need to perform this calculation once per refinement step.
+We determine the multiplier for each grid point by simple iterating over all existing grid points and save the result of \cref{eq:diagonal-matrix}.
+The cost of this operation is in \(\BigO(n)\) and is thus negligible.
+
+The class \emph{OperationDiagonal} can then be used in the same way as the
+implementation of the ridge regularization.
 
 \subsection{Results \textit{\&} Discussion}\label{sec:tikh-discussion}
 To prove the effectiveness of the diagonal method, we first show empirically that \cref{eq:weights-bound} holds for a simple function in \(H^2_{\text{mix}}\).
-We then present results that indicate that our proposed regularization functional shows improved results for an artificial dataset, for that the upper bound for the surpluses holds by construction.
+We then present results that indicate that our proposed regularization functional shows improved results for an artificial dataset, for which the upper bound for the surpluses holds by construction.
 Finally we show benchmark results for two real-world datasets, comparing the identity matrix with the diagonal operator.
 
 \begin{figure}[ht]
@@ -164,16 +179,19 @@ Finally we show benchmark results for two real-world datasets, comparing the ide
 \end{figure}
 
 \sidetitle{Inverse Parabola}
-Consider the inverse parabola
+We first consider the inverse parabola
 \begin{equation}\label{eq:inverse-parabola}
   f(x_1, x_2) = 16x_1(1-x_1)x_2(1-x_2).
 \end{equation}
-We created a two dimensional grid with standard linear basis functions and level three that has 17 grid points.
-The following construction also works for a different level choice.
-The dataset was then created by setting each \(x_1, x_2\) equal to the coordinates of one grid point each, \(y\) is then calculated using \cref{eq:inverse-parabola}.
-The sparse grid regression model trained on this dataset and the aforementioned grid was able to recover the data perfectly, with a mean squared error smaller than the machine epsilon. More interestingly, the calculated weights were identical to our prior.
+We created a two dimensional grid with standard linear basis functions and level
+three that had 17 grid points.
+The construction also works for a different choice of level.
+The dataset was then created by setting the features \(x_1, x_2\) equal to the coordinates of one grid point each, the target \(\bm{y}\) was then calculated using \cref{eq:inverse-parabola}.
+The sparse grid regression model trained on this dataset and the aforementioned
+grid was able to recover the target perfectly, with a mean squared error smaller
+than the machine epsilon.
+More interestingly, the calculated weights were identical to our prior.
 Note that we did not perform regression but rather interpolation.
-
 While this does not prove that this prior holds, it is a simple example for this construction.
 
 \sidetitle{Recovering Weights}
@@ -184,45 +202,48 @@ We first created a two dimensional sparse grid learner with level 3 and sampled
 its weights from the normal distribution \(\bm{\alpha} \sim \mathcal{N}(0,
 \bm{\Gamma}^{-1})\), which corresponds to the prior~\ref{eq:diagonal-prior}.
 The operator \(\bm{\Gamma}\) is our diagonal matrix from \cref{eq:diagonal-matrix}.
-That corresponds directly to the multidimensional Gaussian prior, as described by \cref{eq:diagonal-prior}.
-Let \(\bm{X} \in \mathbb{R}^{n \times 2}\) be our matrix, where each row is drawn from a two-dimensional uniform distribution.
+Let \(\bm{X} \in \mathbb{R}^{n \times 2}\) be our design matrix, where each row is drawn from a two-dimensional uniform distribution.
 We then created our target vector \(\bm{y}\) by predicting the result of
 \(\bm{X}\) using the constructed model.
 Right now, this gives a trivial regression problem and to show that the diagonal
-matrix yields better results we need to add some noise to \(y\).
-Let \(\sigma\) denote the standard deviation of \(y\).
+matrix yields better results, we need to add some noise to \(\bm{y}\).
+Let \(\sigma\) denote the standard deviation of \(\bm{y}\).
 We then crafted different variants of our dataset by adding normal noise to the
 target variable with mean zero and standard deviation \(s \sigma\), for some
 values of \(s\).
 The signal-to-noise-ratio (\textsc{snr}) of the modified target is then given by \(1/s\).
 
-\todo{Use scientific notation for \(\lambda\).}
 \begin{table}[htb]
 \centering
-\begin{tabular}[c]{S[table-format=2.1]S[table-format=1.1]S[table-format=2.6]S[table-format=2.6]S[table-format=2.6]S[table-format=2.6]}
-  \toprule \multicolumn{1}{r}{SNR}
-& \multicolumn{1}{r}{Exponent Base}
-& \multicolumn{1}{r}{\(\lambda\)}
-& \multicolumn{1}{r}{Weights-RMSE}
-& \multicolumn{1}{r}{CV-RMSE}
-& \multicolumn{1}{r}{\(\sigma_\text{noise}\)}
+\begin{tabular}[c]{S[table-format=1.1]
+  S[table-format=1.1]
+  S[table-format=1.4, table-figures-exponent=2, table-sign-mantissa, table-sign-exponent]
+  S[table-format=2.6]
+  S[table-format=2.6]
+  S[table-format=2.6]}
+  \toprule \multicolumn{1}{r}{\textsc{snr}}
+& \multicolumn{1}{c}{Exponent Base}
+& \multicolumn{1}{c}{\(\lambda\)}
+& \multicolumn{1}{c}{Weights-\textsc{rmse}}
+& \multicolumn{1}{c}{\textsc{Cv}-\textsc{rmse}}
+& \multicolumn{1}{c}{\(\sigma_\text{noise}\)}
 \\\midrule
-0.5 & 4.5 & 0.002442 & 0.109284 & 2.159250 & 2.100775\\
-1.0 & 6.5 & 0.000256 & 0.095696 & 1.083762 & 1.050387\\
-2.0 & 4.5 & 0.000146 & 0.080263 & 0.545097 & 0.525194\\
-4.0 & 4.0 & 0.000047 & 0.062738 & 0.274558 & 0.262597\\
+4.0 & 4.0 & 4.7149e-05 & 0.062738 & 0.274558 & 0.262597\\
+2.0 & 4.5 & 1.4563e-04 & 0.080263 & 0.545097 & 0.525194\\
+1.0 & 6.5 & 2.5595e-04 & 0.095696 & 1.083762 & 1.050387\\
+0.5 & 4.5 & 2.4421e-03 & 0.109284 & 2.159250 & 2.100775\\
 \bottomrule
 \end{tabular}
 \caption[Best exponent bases for diagonal test dataset.]{
 Combinations of \(\lambda\) and exponent base for different \textsc{snr}s that
-achieved the best \textsc{rmse}.
+achieved the best root-mean-square-error (\textsc{rmse)}.
 }\label{fig:diagonal-testdata}
 \end{table}
 
 We performed a grid search\footnote{
 We used a Monte-Carlo cross-validation method with ten iterations and
 a 9:1 train-validation split for this experiment, in contrast to the usual
-10-Fold method to compare the different estimators.
+10-Fold method, to compare the different estimators.
 } for sparse grid estimators, testing on a grid
 consisting of different choices for \(\lambda\) and the exponent bases in the
 interval \([2, 10]\) with stepsize 0.5.
@@ -232,68 +253,54 @@ that are close to four.
 There is one outlier, the \(\textsc{snr} = 1\) case, which can be explained
 by the very noisy data.
 The regularization parameter \(\lambda\) and the \textsc{rmse} for the weights
-decreases for a higher \textsc{snr}, as expected.
-All results are close to the theoretical optimal error, given by the variance of
+decrease for a higher \textsc{snr}, as expected.
+All results are close to the theoretical optimal error, which is equivalent to the variance of
 the noise.
-Those results indicate, that our proposed regularization method improves performance for a dataset, which can be approximated by a model with surpluses that follow the upper bound.
+Those results indicate that our proposed regularization method improves performance for a dataset, which can be approximated by a model with surpluses that follow the upper bound.
 
-\sidetitle{Concrete dataset}
-So far we have only seen examples for artificial datasets which adhere to our assumptions by construction.
+\sidetitle{Concrete Dataset}
+So far we have only seen examples for artificial datasets, which adhered to our assumptions by construction.
 We now introduce our first real-world dataset, the concrete dataset.
 For this dataset our goal is to predict the compressive strength of concrete,
-using the recipe and the age in days of its mixture.
+using the recipe of its mixture and its age in days.
 The recipe consists of seven quantitative predictors, all given in the unit
 kilogram per thousand liters.
 Concrete consists of the ingredients cement, blast furnace slag, fly ash,
-water, super-plasticizer, coarse aggregate, and fine aggregate.
-It was donated to the \textsc{uci} machine learning
+water, superplasticizer, coarse aggregate, and fine aggregate.
+The dataset was donated to the \textsc{uci} machine learning
 repository~\cite{datasets-uci} by \citeauthor{datasets-concrete} and was first
 published in their paper~\cite{datasets-concrete}.
-The dataset consists of 1030 instances altogether.
-We split the data and used 80\% for training, and the other 20\% solely as
+It consists in 1030 instances altogether.
+We split the data and used 80\% for training and the other 20\% solely as
 testing data.
 
-We performed a grid search using a learner with level 4 for the diagonal
+We performed a grid search using a learner with level four for the diagonal
 regularization with fixed exponent bases \(c = 4\), and \(c = 1\), which
 correspond to the diagonal and the identity matrices respectively.
-Each learner performed five adaptivity steps, refining five grid points during
-each step.
-The performance of each estimator was estimated using a standard 10-fold cross
-validation procedure.
+Each learner performed five adaptivity steps, each refining three grid points.
+The performance of the estimators was estimated using a standard 10-fold cross validation procedure.
 
 \begin{figure}[htb]
   \centering
   \includegraphics[width=\textwidth]{tikhonov_concrete_l4}
-  \caption{This figure presents the obtained results for the concrete dataset
-    obtained with estimators with level four.}
+  \caption{Results for the concrete dataset obtained with estimators with level
+    four for two different Tikhonov matrices.}
   \label{fig:tikhonov-concrete-l4}
 \end{figure}
 
 The results are shown in \cref{fig:tikhonov-concrete-l4}.
-We can see that our method results in better results than the identity
+We can see that our method resulted in better results than the identity
 regularization, although the difference between the two methods was small.
-\FloatBarrier{}
-\begin{figure}[htb]
-  \centering
-  \includegraphics[width=\textwidth]{tsne_power_plant}
-  \caption[\textsc{t-sne} plot for the power plant dataset]{
-2-dimensional visualization of the power plant dataset. This visualization is generated using the T-distributed stochastic neighbor embedding (\textsc{t-sne}) algorithm. Data points close to each other in the
-  original, multi-dimensional dataset are also close in this two-dimensional
-  representation. The target values are not considered for this calculation, they
-are only used to determine the color of the points. The axes contain no useful
-information and are therefore omitted.
-}
-  \label{fig:tsne-power-plant}
-\end{figure}
+
 \sidetitle{Power Plant Dataset}
-We also tested the performance for the power plant dataset, for which a visualization is given by \cref{fig:tsne-power-plant}.
+We also tested the performance for the power plant dataset, for which a visualization is given by \vref{fig:tsne-power-plant}.
 The target variable of this dataset is the hourly energy output for a combined
 cycle power plant.
 To predict this target, we use the temperature, the ambient pressure, the
 relative humidity, and the exhaust vacuum as predictors.
 This dataset appeared first in~\cite{datasets-powerplant} and was donated to the
 \textsc{uci} machine learning repository~\cite{datasets-uci} by \citeauthor{datasets-powerplant}.
-It consists of 9568 instances, which were split into a training and testing
+It consists in 9568 instances, which were split into a training and testing
 dataset at a ratio of 8:2.
 
 We then performed a grid search over an grid of lambdas in the interval
@@ -306,15 +313,8 @@ errors.
 Again, we can see that the diagonal regularization improved the \textsc{rmse} by
 small margin of roughly 0.03.
 Note that this improvement is larger than the overall-effect of the identity
-regularization, which implies in contrast to the ridge regularization the
+regularization, which implies that, in contrast to the ridge regularization, the
 diagonal matrix achieved significant improvements over the non-regularized regression.
-
-We can conclude from these results, that the diagonal regularization method is
-able to result in better outcomes if the datasets adhere to the assumptions of
-the method.
-The tests on real-world datasets showed that our proposed method is a solid alternative
-to the standard ridge regularization penalty, increasing the performance by a
-small margin for a negligible additional performance cost.
 
 \begin{figure}[htb]
   \centering
@@ -323,13 +323,39 @@ small margin for a negligible additional performance cost.
     learners of level five.}
   \label{fig:tikhonov-power-plant-l5}
 \end{figure}
+
+We can conclude from these results that the diagonal regularization method is
+able to result in better outcomes if the datasets adhere to the assumptions of
+the method.
+The tests on real-world datasets showed that our proposed method is a solid alternative
+to the standard ridge regularization penalty, increasing the performance by a
+small margin for a negligible additional performance cost.
+\begin{figure}[htb]
+  \centering
+  \includegraphics[width=\textwidth]{tsne_power_plant}
+  \caption{
+2-dimensional visualization of the power plant dataset. This visualization was generated using the t-Distributed Stochastic Neighbor Embedding (\textsc{t-sne}) algorithm~\cite{tsne}. Data points close to each other in the
+  original, multi-dimensional dataset are also close in this two-dimensional
+  representation. The target values are not considered for this calculation, they
+are only used to determine the color of the points. The axes contain no useful
+information and are therefore omitted.
+}
+  \label{fig:tsne-power-plant}
+\end{figure}
 \FloatBarrier{}
-\section{Sparse Regularization}
+\section{Sparsity-Inducing Penalties}\label{sec:sparse-penalties}
 We have seen different variations of Tikhonov regularization.
 All regularization methods so far have one thing in common: they used the squared Euclidean-norm.
-In this section we are going to look at three different methods, which all use different norms that induce sparsity.
-Sparsity in this context means solution vectors \(\bm{\alpha}\) with entries
-that are exactly zero.
+In this section we will look at three different methods, which all use different norms that induce sparsity.
+Sparsity in this context means that some entries of the weight vector \(\bm{\alpha}\) are exactly zero.
+
+\begin{figure}[tb]
+    \centering
+    \includegraphics[width=1\textwidth]{constraints}
+    \caption{Constraint regions for lasso and ridge regularization respectively. The red contours correspond
+      to a \(l_2^2\) loss function with optimal solution \(\bm{\alpha}^*\). The
+      figure is inspired by figure 3.11 of~\cite{esl}.}\label{fig:reg-constraints}
+\end{figure}
 
 \sidetitle{Lasso}
 A first simple method is the so called lasso\footnote{In the original
@@ -339,17 +365,19 @@ We use the term in a more metaphorical manner, where the lasso stands for an
 actual rope used to catch cattle, or in our case predictors. See also~\cite{sparse-learning}.},
 first published by Tibshirani in~\cite{lasso}.
 We can represent this procedure in a form similar to \cref{eq:tik-constrained} for a constant \(l\):
-\begin{align}\label{eq:lasso-constrained}
+\begin{align*}\label{eq:lasso-constrained}
 \text{minimize} \quad &
  \left\Vert  \bm{\Phi} \bm{\alpha} - \bm{y}  \right\Vert_2^2 \\
 \text{subject to} \quad & \Vert \bm{\alpha}  \Vert_1 \leq l,
-\end{align}
+\end{align*}
 which we can also cast into the more convenient Lagrangian representation
 \begin{equation*}
-\mathcal{S} = \lambda \Vert \bm{\alpha} \Vert_1.
+\mathcal{S} = \Vert \bm{\alpha} \Vert_1.
 \end{equation*}
-We can see from the constraint form, that the lasso only accepts solutions that
-are inside a \(d\)-dimensional hypercube, centered at zero.
+We can see from the constraint form that the lasso only accepts solutions that
+are inside a \(d\)-dimensional hyper-cube centered on the origin.
+\Cref{fig:reg-constraints} compares the constraint regions of the ridge and
+lasso regularization.
 Let \(\hat{\bm{\alpha}}\) denote the non-regularized least squares solution.
 All values of \(l \geq \Vert \hat{\bm{\alpha}} \Vert_1\) shrink the predictors,
 some weights can be exactly zero~\cite{lasso}.
@@ -359,31 +387,28 @@ some weights can be exactly zero~\cite{lasso}.
     \includegraphics[width=0.7\textwidth]{pdfs}
     \caption{Plot of priors for ridge, lasso and elastic net.}\label{fig:reg-pdfs}
 \end{figure}
-\begin{figure}[tb]
-    \centering
-    \includegraphics[width=1\textwidth]{constraints}
-    \caption{Constraint regions for lasso and ridge regularization respectively. The red contours correspond
-      to a \(l_2^2\) loss function with optimal solution \(\bm{\alpha}^*\). The
-      figure is inspired by figure 3.11 of~\cite{esl}.}
-\end{figure}
 
+\sidetitle{Laplace Prior}
 We can also view this smoothness function from a Bayesian perspective.
-In this context lasso regularization can be seen as a Laplace prior on the
+In this context, lasso regularization can be seen as a Laplace prior on the
 weights with zero mean.
-A visualization of the prior can be seen in \cref{fig:reg-pdfs}.
-We can see, that the Laplace prior puts more of its weight at zero and on its
+A visualization of the prior for ridge and lasso regularization can be seen in \cref{fig:reg-pdfs}.
+We can see that the Laplace prior puts more of its weight at zero and on its
 tails than the normal distribution, which implies that solutions are more likely
 to be exactly zero or larger than for the ridge estimate~\cite{lasso}.
-The lasso is an instance of a large family of regularization functionals---where the penalty is realized as the \(l_p\) norm of the weights.
-We define \(\Vert \bm{\alpha} \Vert_0 = \vert \{a \in \bm{\alpha} \, | \, a \neq 0\} \vert\) as the cardinality of the support, i.e.~the number of entries of a vector that are not zero.
-The name ``\(l_o\)-norm'' reflects that it is similar to a \(l_p\) norm, but is
+
+\sidetitle{Relation to Best-Subset}
+The lasso is an instance of a large family of regularization functionals, where the penalty is realized as the \(l_p\) norm of the weights.
+We define the ``\(l_o\)-norm'' \(\Vert \bm{\alpha} \Vert_0 = \vert \{a \in
+\bm{\alpha} \, | \, a \neq 0\} \vert\) as the cardinality of the support of \(\bm{\alpha}\), i.e.~the number of entries of a vector that are not zero.
+The name ``\(l_o\)-norm'' reflects that it is similar to an \(l_p\) norm but is
 not a proper norm itself.
-The \(l_o\) penalty corresponds to the standard best-subset feature-selection method.
+The \(l_o\)-penalty corresponds to the standard best-subset feature-selection method.
 Because the \(l_p\) norms are only convex for \(p \geq 1\), the lasso can be interpreted as the best convex approximation of the best-subset method~\cite{sparse-learning,lasso}.
-After we have convinced ourselves that the lasso indeed leads to sparse
-solutions, we will discuss its weaknesses.
 
 \sidetitle{Elastic Net}
+After we convinced ourselves that the lasso indeed leads to sparse
+solutions, we will discuss its weaknesses.
 An important modification of the lasso is the elastic net penalty, first introduced in~\cite{elasticnet} by \citeauthor{elasticnet}.
 Let \(n\) denote the number of data points and \(p\) the number of grid points. The lasso does not show good results in the following situations~\cite{elasticnet}:
 \begin{itemize}
@@ -406,7 +431,7 @@ It is a compromise between both methods and is given by
   \lambda \mathcal{S}(\bm{\alpha}) = \lambda \Vert \bm{x} \Vert_2 +  \gamma \Vert \bm{x} \Vert _1,
 \end{equation}
 where \(\lambda\) and \(\gamma\) are two independent parameters~\cite{elasticnet}.
-Although this form is more convenient for some following calculations, it does
+Although this form is more convenient for some of the following calculations, it does
 not yield a nice interpretation.
 This is why we re-parametrize the previous equation as
 \begin{equation*}
@@ -417,13 +442,10 @@ From this equation we can recover both the ridge and the lasso regularization, b
 The advantage of the method is then obvious.
 While the lasso part of the penalty enforces sparsity, the ridge part shrinks
 correlated variables together, thus stabilizing the feature selection~\cite{elasticnet}.
-Note that the version presented here corresponds to the naïve elastic net
-presented in the original paper.
-The non-naïve version improves the performance if the penalty is neither close
-to the ridge nor the lasso regularization~\cite{elasticnet}.
+A visualization of the corresponding prior, a mixture of an Gaussian and a Laplace prior, can be seen in~\cref{fig:reg-pdfs}.
 
 \sidetitle{Group Lasso}
-Another useful generalization of the lasso is the grouped lasso that shrinks groups of weights at the same time.
+Another useful generalization of the lasso is the group lasso that shrinks groups of weights at the same time.
 Either all members of a group are selected, or none at all.
 It was first developed by \citeauthor{grouplasso} in~\cite{grouplasso}, then
 extended to the logistic regression method in~\cite{grouplasso-logistic}.
@@ -435,12 +457,11 @@ The discussion here follows~\cite{sparse-learning}, unless otherwise noted.
 Let \(\mathcal{P}\) denote a partition of \(\bm{\alpha}\), i.e.~a set of disjoint subsets whose union is \(\bm{\alpha}\).
 We can then define the group lasso as
 \begin{equation*}
-  \mathcal{S}({\bm{\alpha}}) = \sum_{p \in \mathcal{P}} \left(\sqrt{\vert p \vert}\right) \Vert  p \Vert_2,
+  \mathcal{S}({\bm{\alpha}}) = \sum_{\bm{p} \in \mathcal{P}} \left(\sqrt{\vert \bm{p} \vert}\right) \Vert  \bm{p} \Vert_2,
 \end{equation*}
 where \(\vert p \vert\) denotes the size of a group \(p\) and is used as a weighting factor.
-We can choose to weight the groups differently, but the square root of the
-cardinality is a useful factor that is simple to calculate and which works well in practice.
-If we would not include this factor, larger groups would be more likely to be included in the final model~\cite{sparse-learning}.
+We can choose to weight the groups differently but the square root of the cardinality is a useful factor that is simple to calculate and works well in practice.
+If we would not include this factor larger groups would be more likely to be included in the final model~\cite{sparse-learning}.
 
 \sidetitle{Order of grid points}
 Let
@@ -448,7 +469,7 @@ Let
   \operatorname{order}(\bm{p}) = \vert \{ i\, \mid p_i \neq 0.5 \} \vert
 \end{equation*}
 denote the cardinality of the support for a grid point with coordinates \(\bm{p}\).
-A basis function with coordinate 0.5 for a dimension is constant in respect to
+A modified linear basis function with coordinate 0.5 for a dimension is constant with respect to
 this dimension.
 For example, the bias term is constant for all dimensions and has therefore
 order zero.
@@ -457,16 +478,22 @@ all but one dimension, and so on.
 We call all grid points with order larger than one interaction terms, because
 they model the interaction between different dimensions.
 
+\sidetitle{Grouping Grid Points}
 We then partition our weights into groups consisting of all terms of the same order.
 This grouping corresponds to the original predictors, including the interactions
 between them.
 \Cref{alg:group} shows a possible algorithm which results in our chosen
 partition.
+We use the fact that all grid points have a unique sequence number, which we can use to refer to a specific basis function.
+This way of grouping variables and its usefulness for the group lasso is also
+discussed in~\cite{sparse-parsimony}.
 Note that we can recover the original lasso penalty by choosing partitions of size one.
 
 \begin{algorithm}[h]
 \caption{Group Lasso: Group}\label{alg:group} 
  \begin{algorithmic}[1]
+   \Require{gridStorage that contains all grid points, weight vector
+     \(\bm{\alpha}\).}
    \Statex
    \Function{group}{gridStorage, $\bm{\alpha}$} 
     \Let{curGroup}{0}
@@ -491,28 +518,59 @@ Note that we can recover the original lasso penalty by choosing partitions of si
  \end{algorithm}
 
 It can be shown that the group lasso penalty performs better than the lasso
-regularization, if the group structure is evident in the data.
-If the structure is not contained in the data, the lasso method shows stronger
+regularization if the group structure is evident in the data.
+If the structure is not contained in the data, the lasso shows stronger
 theoretical results.
 For a more elaborate discussion of these and more results of the group lasso, we refer to~\cite{grouplasso-benefit}.
 
-The lasso functional---and thus also the elastic net smoothness term---is not differentiable at zero.
-We were able to solve the Tikhonov regularization method using a standard conjugated gradient scheme, this is not possible for the methods presented in this section.
-We cannot rely on gradient information any more, we need to solve this problem using a gradient-free optimization procedure.
-This does not mean, that we have to use a black-box-optimization algorithm, we can still profit from the structure of our problem.
-In the following section we present a solver for least-squares problems with
-sparse regularization.
+\sidetitle{Non-differentiable Penalties}
+All discussed sparsity-inducing penalties are not differentiable at zero.
+We were able to solve the Tikhonov regularization method using a standard
+conjugated gradient scheme.
+This is not possible for the methods presented in this section, because we cannot rely on gradient information any more.
+This is why we need to solve these problems using a gradient-free optimization procedure.
+Because we can still profit from the structure of our problem, we do not have to use a black-box-optimization algorithm.
+We present a solver for least-squares problems with sparse regularization in the following section.
 
 \input{chapters/regularization_fista}
-
+\FloatBarrier{}
 \subsection{Implementation}
 
 \tikzumlset{fill class = white, fill template = white, fill package = white}
+% \newcommand{\fistalb}{\\\phantom{+ solve(}}
+% \begin{figure}[hbt]
+% \begin{tikzpicture}
+%   \begin{umlpackage}[x=0, y=0]{Fista}
+%     \umlclass[type=abstact, width=20ex]{sgpp::solver::FistaBase}{
+      
+%     }{
+%         % + solve(op : OperationMultipleEval, \\\phantom{+ solve} weights : DataVector,
+%         % y : DataVector,\\\phantom{+ solve} maxIt : size\_t, threshold : double) : void
+%       \umlvirt{\parbox[c]{0.7\textwidth}{+ solve(op : OperationMultipleEval,
+%           \fistalb weights : DataVector,
+%         y : DataVector, maxIt : size\_t, \fistalb threshold : double, L : double) : void}}
+
+%     }
+
+%     \umlclass[template={F}, y=-4, name=Fista]{sgpp::solver::Fista}{
+%     - regularizationFunction : F 
+%     }{
+%       + Fista( regularizationFunction : F)\\
+%     }
+       
+%     \umlinherit[]{sgpp::solver::FistaBase}{sgpp::solver::Fista}
+%   \end{umlpackage}
+% \end{tikzpicture}
+% \caption{\textsc{Uml}-diagram of the implementation of \fista.}
+% \end{figure}
+
 
 \begin{figure}[h]
   %https://tex.stackexchange.com/questions/140739/extending-figures-into-the-margin-on-even-vs-odd-pages
   \centering
- \makebox[0.9\textwidth][c]{\begin{tikzpicture}
+ \advance\hsize\marginparwidth
+ \advance\hsize\marginparsep
+ \begin{tikzpicture}
     \begin{umlpackage}{RegularizationFunctions}
       \umlclass[type=abstact, x=1]{RegularizationFunction}{
       }{
@@ -534,7 +592,7 @@ sparse regularization.
       }{
       + LassoFunction(lambda : double)}
 
-      \umlclass[y=-4, x=10]{ElasticNetFunction}{
+      \umlclass[y=-4, x=8]{ElasticNetFunction}{
         - lassoFunc : LassoFunction \\
         - lambda1 : double\\
         - lambda2 : double
@@ -542,11 +600,11 @@ sparse regularization.
         + ElasticNetFunction(lambda : double, l1Ratio : double)
       }
 
-      \umlclass[y=5, x=10]{GroupLassoFunction}{
+      \umlclass[y=5, x=8]{GroupLassoFunction}{
         - lambda : double\\
         - groups : map<coords, int>\\
         - storage : gridStorage*\\
-        - groupIx : map<int, index>\\
+        - groupMap : map<int, index>\\
         - lastSize: int
       }{
         + GroupLassoFunction(lambda : double,\\
@@ -563,90 +621,49 @@ sparse regularization.
 
     \umlassoc{LassoFunction}{ElasticNetFunction}
     \end{umlpackage}
-  \end{tikzpicture}}
-  \caption[Class diagram for RegularizationFunctions]{Implementation of
-    RegularizationFunctions}
+  \end{tikzpicture}
+  \caption{\textsc{Uml}-class diagram of the implementation of the
+    regularization functions.}
 \label{fig:uml-regularization-functions}
 \end{figure}
 
-\newcommand{\fistalb}{\\\phantom{+ solve(}}
-\begin{figure}[htb]
-\begin{tikzpicture}
-  \begin{umlpackage}[x=0, y=0]{Fista}
-    \umlclass[type=abstact, width=20ex]{sgpp::solver::FistaBase}{
-      
-    }{
-        % + solve(op : OperationMultipleEval, \\\phantom{+ solve} weights : DataVector,
-        % y : DataVector,\\\phantom{+ solve} maxIt : size\_t, threshold : double) : void
-      \umlvirt{\parbox[c]{0.7\textwidth}{+ solve(op : OperationMultipleEval,
-          \fistalb weights : DataVector,
-        y : DataVector, maxIt : size\_t, \fistalb threshold : double, L : double) : void}}
-
-    }
-
-    \umlclass[template={F}, y=-4, name=Fista]{sgpp::solver::Fista}{
-    - regularizationFunction : F 
-    }{
-      + Fista( regularizationFunction : F)\\
-    }
-       
-    \umlinherit[]{sgpp::solver::FistaBase}{sgpp::solver::Fista}
-  \end{umlpackage}
-\end{tikzpicture}
-\end{figure}
-
-As seen in \cref{fig:uml-regularization-functions} we define a base class
-RegularizationFunction, that offers the two methods eval and prox, that
-calculate \(g(\bm{\alpha})\) and its proximal operator respectively.
-Every parameter that is needed for each functional is passed during
-construction, this way we archive a great amount of flexibility.
-Classes that use the regularization functions do not have to be concerned about
-the definition or the parameters of the functionals, they can treat them as a
-black box.
-We offer an implementation of the ridge, the lasso, the elastic net and the
-group lasso function, that resemble the definitions outlined in this chapter.
+As seen in \cref{fig:uml-regularization-functions} we define a base class RegularizationFunction that offers the two methods \textsc{eval} and \textsc{prox}, which calculate \(g(\bm{\alpha})\) and its proximal operator respectively.
+Every parameter that is needed for each functional is passed during construction, this way we achieve a great amount of flexibility.
+Classes that use the regularization functions do not have to be concerned about the definition or the parameters of the functionals, they can treat them as a black box.
+We offer an implementation of the ridge, the lasso, the elastic net and the group lasso function, which resemble the definitions outlined in this chapter.
 The group lasso function uses the following subroutines:
 \begin{description}
 \item[calculateIndices] that partitions our weights into groups that share the
   same order. This method is only called when the grid size changes, so only
   once during the first solver iteration. When the grid size changes, e.g.~due
-  to an adaptivity process, the groups are automatically recalculated. This is
-  in contrast to the
-\item[calculateNorm] method, that is called once per evaluation of the proximal
-  operator, which calculates the group norms and the group size.
+  to an adaptivity process, the groups are automatically recalculated.
+  The results of this operation are stored in the vector \emph{groups} and the map
+  \emph{groupMap}.
+\item[calculateNorm] is called once per evaluation of \textsc{prox} and
+  \textsc{eval}. It calculates the group norms and the group size.
 \end{description}
-The ElasticNetFunction uses the LassoFunction to calculate the  \(l_1\) part of its evaluation.
-Additionally we implemented a ZeroFunction, that can be used, when no
-regularization is desired.
+The ElasticNetFunction uses the \emph{LassoFunction} to calculate the  \(l_1\) part of its evaluation.
+Additionally we implemented a \emph{ZeroFunction} that can be used, when no regularization is desired.
 
-Our solver \fista is then implemented as a class with one template argument: the
-proximal operator.
-We therefore have to first create a RegularizationFunction and then a Fista
-class.
+Our solver \fista is then implemented as a class with one template argument: the proximal operator.
+We therefore have to first create a \emph{RegularizationFunction} and then a \emph{Fista} class.
 Even though this might seem inconvenient, it allows the compiler to inline all
 calls to both the function evaluation and the proximal operator, which get
-called once in each loop.
-Notice in the class diagram ???, we defined a base class FistaBase, that allows us to hold a pointer not only to a specalised Fista object, but also to one where we do not know the used RegularizationFunction.
+called once per iteration.
+We defined a base class \emph{FistaBase} that allows us to hold a pointer not only to a specialized Fista object, but also to one where we do not know the used \emph{RegularizationFunction}.
 
-\fista itself is split into various subroutines, that allow a separation of
-concerns.
-This leads to a very clean implementation, that closely represents
-\cref{alg:fista}.
-All call to the subroutines were inlined automatically, at least for the used
-\emph{gcc}-compiler with the highest optimization settings.
+\fista itself is split into various subroutines, that allow a separation of concerns.
+This leads to a very clean implementation that closely represents
+\cref{alg:fista} in combination with \cref{alg:linesearch}.
+All calls to the subroutines were inlined automatically, at least for the used \textsc{gcc}-compiler with the highest optimization settings.
+The \emph{Fista} class has two public methods.
+We use the first one, called \textsc{solve}, to solve a specific problem instance
+and the second one, called \textsc{getL}, to get the last estimated Lipschitz constant.
+This is useful to avoid a costly grid search after refining the grid, because the Lipschitz constant is usually larger for a larger grid.
 
-
-As seen in the class diagram above, \fista is implemented as a templated class
-that determines the used function \(g\).
-The template allows the compiler to inline all calls to prox and eval, which get
-evaluated once during each iteration.
-Even though the implementation of \fista is split into various subroutines, they
-all get inlined into one efficient loop.
-We have to use a base class, otherwise we would not be able to attain a pointer
-to the Fista class, without knowing the used type of regularization.
 \FloatBarrier{}
 \subsection{Results \textit{\&} Discussion}
-We begin this chapter by analyzing the implicit feature selection performed by
+We begin this section by analyzing the implicit feature selection performed by
 all discussed methods.
 To do this, it is helpful to use an artificial dataset.
 \sidetitle{Friedman1 Dataset}
@@ -657,33 +674,32 @@ We use \(\bm{x}\) as our predictors, and define
   y = 10 \sin(\pi x_1 x_2) + 20(x_3 - 0.5)^2 + 10x_4 + 5x_5 + \varepsilon,
 \end{equation}
 with \(\varepsilon \sim \mathcal{N}(0,1)\) as additional Gaussian noise.
-We perform some preprocessing steps on this dataset, these can be found in \cref{sec:friedman}.
-Despite its simplicity this dataset is very useful for evaluating the
+Despite its simplicity, this dataset is very useful for evaluating the
 regularization methods discussed in this section.
 Its advantages are:
 \begin{itemize}
-\item The dataset is inherently sparse, because five features are not correlated with the
+\item The dataset is inherently sparse because five features are not correlated with the
   response and are left entirely unused.
 \item It is completely additive with the exception of the \(x_1 \times x_2\)
   interaction term.
-\item The importance of each variable is directly visible from the definition
+\item The importance of each variable is directly visible from the definition,
   which allows us to discuss the selection order.
   We can see that the contribution of the \(x_4\) term is the largest, followed
   by \(x_5, x_3\), and finally \(x_1, x_2\) and their interaction.
 \item We know that the optimal \textsc{rmse} is equal to the standard deviation
   of the noise and is hence 1.0.
-  The dataset can therefore be used as some form of sanity check.
+  The dataset can therefore be used as a sanity check.
 \end{itemize}
 
-We can calculate the value of \(\lambda\) for which all weights are exactly zero, using a method discussed in~\cite{regularizationpaths}.
+Using a method discussed in~\cite{regularizationpaths}, we can calculate the value of \(\lambda\) for which all weights are exactly zero.
 The maximum \(\lambda\) is given by
 \begin{equation*}
   \lambda_{\text{max}} = \frac{\max_i \vert \langle \bm{\Phi}_i, \bm{y} \rangle \vert}{\lambda_2 n},
 \end{equation*}
-where the index \(i\) denotes the \(i\)th column of the matrix, and
-\(\lambda_2\) is the amount of \(l_1\) regularization.
+where the index \(i\) denotes the \(i\)th column of the matrix and \(\lambda_2\) is the amount of \(l_1\) regularization.
 For the group lasso penalty we have to consider the group structure as well.
-Luckily the bias term is in practice often the largest group, in that case we can use the same formula.
+In practice, the bias term is often the group with the largest weights, in which
+case we can use the same formula.
 This is true for the Friedman1 dataset.
 We then construct a logarithmic grid from \(\lambda_{\text{max}}\) to \(\lambda_{\text{min}} = \varepsilon \lambda_{\text{max}}\), where \(\varepsilon\) is set to 0.001.
 It is more efficient to start the path with all weights set to zero,
@@ -694,90 +710,87 @@ We calculated regularization paths for the lasso, the elastic net (with
 Friedman1 dataset.
 
 \begin{figure}[hbt]
-  \centering
-  \makebox[\textwidth][c]{\includegraphics[width=1.2\textwidth]{path_lasso}}%
+  \makebox[\textwidth][l]{\includegraphics[width=1.2\textwidth]{path_lasso}}%
   \caption{Regularization path for the lasso}\label{fig:path-lasso}
 \end{figure}
 \sidetitle{Lasso path}
-\Cref{fig:path-lasso} shows the path for the lasso, which first integrates the bias, then one \(x_4\) point, then
+\Cref{fig:path-lasso} shows the path for the lasso, which first integrated the bias, then one \(x_4\) point, then
 one each of \(x_1, x_2\), and one \(x_5\) point.
-The only unneeded term included at \(\lambda_\text{max}\) is a \(x_8\) point,
-with a very small weight.
+The only unneeded term included at \(\lambda_\text{max}\) was a \(x_8\) point with a very small weight.
 This agrees roughly with the importance of the terms.
-Note that it does not select all grid points of a group at the same time.
-This leads to the effect that the inclusion of the second term of the same group
-often leads to a weight decrease of the first included term.
-In other words the magnitude of a weight might increase for a smaller
-regularization parameter.
+Note that it did not select all grid points of a group at the same time.
+This has the effect that the inclusion of the second term of the same group often leads to a weight decrease of the first included term.
+In other words the magnitude of a weight might decrease for a smaller regularization parameter.
 
-\begin{figure}[H]
-  \centering
-  \makebox[\textwidth][c]{\includegraphics[width=1.2\textwidth]{path_grp}}%
-  \caption{Regularization path for the group lasso}
+\begin{figure}[hbt]
+  \makebox[\textwidth][l]{\includegraphics[width=1.2\textwidth]{path_grp}}%
+  \caption{Regularization path for the group lasso}\label{fig:path-grp}
 \end{figure}
 
-The group lasso perform a more stable grid point selection, all grid points
-corresponding to the same group are either in the model or not.
-There is no sparsity on a grid point level, but rather on the group level.
-As with the lasso, the \(x_4\) terms are chosen first, followed by the \(x_1,
-x_2\) terms at roughly the same time, the final chosen terms are the \(x_5\) and
+\sidetitle{Group Lasso Path}
+The regularization path of the group lasso is depicted by \cref{fig:path-grp}.
+It performed a more stable grid point selection and all grid points
+corresponding to the same group were either in the model or not.
+There was no sparsity on a grid point level but rather on the group level.
+As with the lasso, the \(x_4\) terms were chosen first, followed by the \(x_1,
+x_2\) terms at roughly the same time, the final chosen terms were the \(x_5\) and
 \(x_3\) ones.
-Interestingly the weights at \(\lambda_\text{max}\) for both the grouped and
-standard lasso are very similar.
+It did not choose any unneeded point, even at the minimum \(\lambda\).
+Interestingly, the weights at \(\lambda_\text{max}\) for both the grouped and
+standard lasso were very similar.
 
-\begin{figure}[H]
-  \centering
-  \makebox[\textwidth][c]{\includegraphics[width=1.2\textwidth]{path_en}}%
-  \caption{Regularization path for the elastic net with \(\lambda_2 = 0.3\)}
+\begin{figure}[hbt]
+  \makebox[\textwidth][l]{\includegraphics[width=1.2\textwidth]{path_en}}%
+  \caption{Regularization path for the elastic net with \(\lambda_2 = 0.3\)}\label{fig:path-en}
 \end{figure}
-The elastic net also selects the bias first.
-It then selects one point of \(x_1, x_2, x_4,\text{and } x_5\) each.
-One \(x_3, x_6, x_7, x_8, x_9 \text{ and } x_{10}\) terms are selected next,
-which are all irrelevant features, except the \(x_3\) point.
-For the highest chosen \(\lambda\) all grid points are selected.
-We can see, that the elastic net does not perform proper feature selection, when
-the ridge regularization dominates the lasso penalty.
-The same reasons to the effect that the value of most weights is larger than in
-the lasso estimate, which agrees with the weight prior.
-The result looks drastically different, if a value of \(\lambda_2\) close to 1
-is chosen, which would then approach the lasso penalty.
+
+\sidetitle{Elastic Net Path}
+The elastic net path, shown by \cref{fig:path-en}, also selected the bias first.
+It then selected one point of \(x_1, x_2, x_4,\text{and } x_5\) each.
+One \(x_3, x_6, x_7, x_8, x_9 \text{ and } x_{10}\) terms were selected next,
+which are all irrelevant features, with the exception of the \(x_3\) point.
+For the highest chosen \(\lambda\) all grid points were selected.
+We can see that the elastic net does not perform proper feature selection when the ridge regularization dominates the lasso penalty.
+The same reasons lead to the effect that the value of most weights were larger than in the lasso estimate, which agrees with the weight prior.
+The result would look drastically different if a value of \(\lambda_2\) close to one is chosen, which then approaches the lasso penalty.
 
 Using the same method we calculated the regularization paths for the lasso and
 the grouped lasso again for the Friedman1 dataset, but this time using a level
 three estimator.
 The results are depicted in \vref{fig:friedman1-heatmap}.
-We can see, that while the group norms are similar, the grid point selection of
-the group lasso is more stable and selects points on a group level.
+We can see that while the group norms were similar, the grid point selection of
+the group lasso was more stable and selected points on a group level.
 
 \begin{figure}[p]
+  \thisfloatpagestyle{empty}
   \begin{subfigure}[t]{0.5\textwidth}
     \centering
-    \includegraphics[width=0.9\textheight, angle =-90 ]{heatmap_lasso}
+    \includegraphics[width=0.95\textheight, angle =-90 ]{heatmap_lasso}
     \caption{Lasso}
-  \end{subfigure}~
+  \end{subfigure}\qquad
   \begin{subfigure}[t]{0.5\textwidth}
     \centering
-    \includegraphics[width=0.9\textheight, angle =-90]{heatmap_grp}
+    \includegraphics[width=0.95\textheight, angle =-90]{heatmap_grp}
     \caption{Group Lasso}
   \end{subfigure}
   \caption{Regularization paths for the Friedman1 dataset with level three.
   Each figure shows two heatmaps.
-  The first one shows the number of selected terms, the second one presents the \(l_2\) norm of the
-  group terms.}\label{fig:friedman1-heatmap}
+  The first one shows the \(l_2\) norm of the group terms, the second one presents the number of selected terms.}\label{fig:friedman1-heatmap}
 \end{figure}
 
+\sidetitle{Concrete Results}
 We saw some results that indicated that the feature selection works.
 The Friedman1 dataset is not a good choice to discuss the real-world performance
 of our proposed penalties, because it is too simplistic.
 This is why we return to the concrete dataset.
-Results for the concrete dataset can be found in \cref{fig:sparse-results}.
+Results for the this dataset can be found in \cref{fig:sparse-results}.
 We performed a grid search over \(\lambda \in [10^{0}, 10^{-1}, \ldots,
 10^{-4}]\) again using five refinement steps over three points each.
 
-For the level four grid the group lasso performed best, followed by the elastic
+For the level four grid, the group lasso performed best, followed by the elastic
 net with \(\lambda_2 = 0.95\) and the lasso penalty.
 We can see that we did not profit from a larger amount of ridge shrinkage, even
-though a small ridge portion helps to stabilize the result.
+though a small ridge portion helped to stabilize the result.
 The results indicate that sparsity on a group level was better than sparsity on a
 basis-function level.
 Note that the testing-\textsc{rmse} was best for the lasso.
@@ -785,7 +798,7 @@ We have seen that for a medium-sized grid all sparsity-inducing penalties showed
 solid results.
 
 Does this situation change for a larger grid?
-The results for the level five grid show the same tendency.
+The results for the level five grid showed the same tendency.
 We can see that all methods achieved better results for the larger grid, only
 the order of the methods is changed.
 For this experiment the lasso showed the best results, followed by the elastic net with
@@ -793,10 +806,9 @@ For this experiment the lasso showed the best results, followed by the elastic n
 This makes intuitive sense:
 A larger grid needs more sparsity and sparsity on the group level is not enough
 any more.
-The result for the elastic net is interesting, because we have more grid points
+The result for the elastic net is interesting, because we had more grid points
 than data points.
-We would have expected it to outperform the \(l_1\) regularization, because it
-should show a more stable feature selection in this case.
+We would expect it to outperform the \(l_1\)-regularization, because it should show a more stable feature selection in this case.
 All sparsity-inducing penalties showed promising results for the larger grid as well.
 
 \begin{table}[tb]
@@ -805,9 +817,8 @@ All sparsity-inducing penalties showed promising results for the larger grid as 
     c
     S[table-format=1.0, table-figures-exponent=2, table-sign-mantissa, table-sign-exponent]
     %S[table-format=4.1(4)]
-    S[table-format=2.1]
-    c
-    c
+    S[table-format=1.4]
+    S[table-format=4.0]
     S[table-format=2.3]
     S[table-format=2.3]}
   \toprule \multicolumn{1}{c}{Level}
@@ -823,12 +834,14 @@ All sparsity-inducing penalties showed promising results for the larger grid as 
 4 & Elastic Net ($\lambda_2$ = 0.95) & 1e-02 & 4.868 & 1382 & 2.902 & 3.869\\
 4 & Lasso & 1e-02 & 4.884 & 1382 & 2.911 & 3.850\\
 4 & Elastic Net ($\lambda_2$ = 0.5) & 1e-02 & 4.927 & 1384 & 3.077 & 4.046\\
+4 & Ridge & 2e-02 & 5.007 & 1470 & 3.120 & 4.198\\
 4 & Elastic Net ($\lambda_2$ = 0.05) & 1e-03 & 5.060 & 1367 & 2.483 & 3.813\\
 \midrule
 5 & Lasso & 1e-02 & 4.582 & 6632 & 2.470 & 3.737\\
 5 & Elastic Net ($\lambda_2$ = 0.95) & 1e-02 & 4.594 & 6632 & 2.460 & 3.742\\
 5 & Group Lasso & 1e-02 & 4.650 & 6694 & 2.861 & 3.955\\
 5 & Elastic Net ($\lambda_2$ = 0.5) & 1e-02 & 4.669 & 6633 & 2.400 & 3.844\\
+5 & Ridge & 2e-02 & 4.709 & 6650 & 2.286 & 4.184\\
 5 & Elastic Net ($\lambda_2$ = 0.05) & 1e-02 & 4.730 & 6648 & 2.297 & 4.085\\
 \bottomrule
    \end{tabular} 
@@ -838,15 +851,16 @@ All sparsity-inducing penalties showed promising results for the larger grid as 
 
 \sidetitle{Akaike information criterion}
 Instead of comparing the average cross-validation error, we can also use the Akaike information criterion (\textsc{Aic})~\cite{aic}.
-It is another way to compare the expected in-sample error of various models.
+It is another way of comparing the relative quality of various models.
 We can calculate it directly from the \textsc{mse}
 \begin{align}
   \operatorname{\textsc{Aic}}(\textsc{df}, \textsc{mse}) = 2\operatorname{df} + n \ln{(\textsc{mse})} + c,
 \end{align}
-where \textsc{df} corresponds to the degrees of freedom of the model,
-\(n\) to the number of data points.
-The constant \(c\)  depends only on the data and can be safely omitted here,
-because we only compare models for a specific dataset.
+where \textsc{df} corresponds to the degrees of freedom of the model and \(n\) to the number of data points.
+The constant \(c\)  depends only on the data and can be safely omitted,
+because we only compare models for a specific dataset~\cite{esl}.
+Note that the \textsc{Aic} is asymptotically equivalent to leave-one out
+cross-validation~\cite{aic-asymp}.
 
 \sidetitle{Effective Degrees of Freedom}
 We use unbiased estimates of the true effective \textsc{df}s for the identity matrix and
@@ -858,8 +872,8 @@ We start with the surprisingly simple solution for the lasso penalty
 \end{align*}
 where \(\bm{\Phi}_{\bm{\mathcal{A}(\alpha)}}\) denotes all columns of
   \(\bm{\Phi}\) that are in the so-called active set \(\bm{\mathcal{A}}\) and
-  \(\operatorname{rank}(\bm{\Phi})\) corresponds to the rank of the matrix \(\bm{\Phi}\)~\cite{lasso-df}.
-If the model matrix \(\bm{\Phi}\) is full rank, the \textsc{df} are given by the cardinality of
+  \(\operatorname{rank}(\bm{\Phi})\) corresponds to the rank of the model matrix \(\bm{\Phi}\)~\cite{lasso-df}.
+If the model matrix \(\bm{\Phi}\) has full column rank the \textsc{df}s are given by the cardinality of
 the active set~\cite{lasso-df}.
 The solution for the identity matrix regularization is given by
 \begin{equation*}
@@ -872,13 +886,48 @@ lasso in~\cite{grouplasso-df}.
 The formula for the diagonal Tikhonov regularization can be derived easily from
 the general formula presented for example in~\cite{esl}.
 
-Table xxx shows the \textsc{Aic} for the best found ridge and lasso models for
-both level four and five for the concrete data set.
-All estimators used five refinements on three points each.
+\begin{table}[h]
+  \centering
+   \begin{tabular}[c]{S[table-format=1]
+    c
+    S[table-format=1.2, table-figures-exponent=2, table-sign-mantissa, table-sign-exponent]
+    S[table-format=4]
+    S[table-format=3.1] %df
+    S[table-format=2.3] %rmse - train
+    S[table-format=4.2] %aic 
+    S[table-format=2.3]}%rmse - test
+  \toprule \multicolumn{1}{c}{Level}
+& \multicolumn{1}{c}{Reg.~Method}
+& \multicolumn{1}{c}{\(\lambda\)}
+& \multicolumn{1}{c}{Train-Grid}
+& \multicolumn{1}{c}{\textsc{df}}
+& \multicolumn{1}{c}{Train-\textsc{rmse}}
+& \multicolumn{1}{c}{\textsc{Aic}}
+& \multicolumn{1}{r}{Test-\textsc{rmse}}\\
+     \midrule
+5 & Ridge & 1.96e-02 & 6650 & 716.7 & 2.286 & 2796.22 & 4.184 \\
+4 & Lasso & 1.00e-02 & 1382 & 518.0 & 2.911 & 2797.09 & 3.850 \\
+4 & Ridge & 1.84e-02 & 1470 & 558.0 & 3.120 & 2991.22 & 4.198 \\
+5 & Lasso & 1.00e-02 & 6632 & 754.0 & 2.470 & 2997.94 & 3.737 \\
+\bottomrule
+   \end{tabular} 
+   \caption{Comparison of \textsc{Aic} for the concrete dataset.
+     All results are ordered by \textsc{Aic} in increasing order.}\label{fig:sparse-aic}
+\end{table}
 
-We can see, that all regularization methods managed to perform well for a
-large grid that has roughly five times more grid points than data points.
-The performance achieved was better than the best results for both tested
+\Cref{fig:sparse-aic} shows the \textsc{Aic} for the best found ridge and lasso models for both level four and five for the concrete data set.
+All estimators used five refinements on three points each.
+We can see that the number of degrees of freedom did not increase linearly with
+larger grid size.
+This is because we only used about one thousand training data points, which was the limiting factor, rather than the number of grid points.
+While the ridge penalty used more degrees of freedom for the grid with level
+four than the lasso, the situation was reversed for the level five grid.
+The \textsc{Aic} for both methods was comparable, it was smaller for both ridge
+models by a very small margin.
+
+We can see that all regularization methods managed to perform well for a
+large grid that has roughly six times more grid points than data points.
+The \textsc{Cv}-errors achieved were better than the best results for both tested
 Tikhonov regularization methods.
 
 %%% Local Variables:

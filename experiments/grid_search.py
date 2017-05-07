@@ -47,18 +47,18 @@ def main(level, num, T, dataset, _log):
     _log.debug("Created SQL session.")
 
     grid_config = model.GridConfig(type=6, level=level, T=T)
-    adaptivity_config = model.AdaptivityConfig(num_refinements=1, no_points=5, treshold=0.0, percent=0.0)
+    adaptivity_config = model.AdaptivityConfig(num_refinements=0, no_points=3, treshold=0.0, percent=0.0)
     epsilon = np.sqrt(np.finfo(np.float).eps)
     solver_type = sg.SLESolverType_CG
-    solver_config = model.SolverConfig(type=solver_type, max_iterations=50, epsilon=epsilon, threshold=10e-5)
-    final_solver_config = model.SolverConfig(type=solver_type, max_iterations=100, epsilon=epsilon, threshold=10e-6)
+    solver_config = model.SolverConfig(type=solver_type, max_iterations=70, epsilon=epsilon, threshold=10e-5)
+    final_solver_config = model.SolverConfig(type=solver_type, max_iterations=150, epsilon=epsilon, threshold=10e-6)
 
     # solver_type = sg.SLESolverType_FISTA
     # solver_config = model.SolverConfig(type=solver_type, max_iterations=200, epsilon=0.0, threshold=10e-5)
     # final_solver_config = model.SolverConfig(type=solver_type, max_iterations=400, epsilon=0.0, threshold=10e-8)
     regularization_type = sg.RegularizationType_Identity
     #regularization_type = sg.RegularizationType_ElasticNet
-    regularization_config = model.RegularizationConfig(type=regularization_type, l1_ratio=1.0, exponent_base=1.0)
+    regularization_config = model.RegularizationConfig(type=regularization_type, l1_ratio=0.05, exponent_base=1.0)
     experiment = model.Experiment(dataset=dataset)
 
     session.add(grid_config)
@@ -69,7 +69,8 @@ def main(level, num, T, dataset, _log):
 
     _log.debug("Created configurations.")
 
-    interactions = mnist_interactions(l2_distance, np.sqrt(2), level+2) # Allow more adaptivity :)
+    interactions = None
+    #interactions = mnist_interactions(l2_distance, 2*np.sqrt(2), level)
     grid_config.interactions = str(interactions)
     if 'optdigits' in dataset:
         estimator = SGClassificationLearner(grid_config, regularization_config, solver_config,
@@ -79,7 +80,7 @@ def main(level, num, T, dataset, _log):
                                         final_solver_config, adaptivity_config, interactions)
     cv = get_cv(dataset, y_train)
     experiment.cv = str(cv)
-    #lambda_grid = np.logspace(-12, -1, num=num)
+    #lambda_grid = np.logspace(-6, -1, num=num)
     lambda_grid = [0.1]
     parameters = {'regularization_config__lambda_reg': lambda_grid}
     grid_search = GridSearch(estimator, parameters, cv)

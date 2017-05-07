@@ -1,10 +1,8 @@
 \subsection{Proximal Methods}
 There are many solvers for the lasso and related methods.
 In this section we present the Fast Iterative Shrinkage Tresholding Algorithm (\fista), first introduced in~\cite{fista}.
-This solver offers a good compromise between flexibility and performance and we
-can use it to solve all presented sparse regularization methods.
-The discussion of \fista\ follows~\cite{fista}, the description of
-the proximal operators follows~\cite{proxsurvey}.
+This solver offers a good compromise between flexibility and performance and we can use it to solve all presented sparse regularization methods.
+The discussion of \fista\ follows~\cite{fista}, the description of the proximal operators follows~\cite{proxsurvey}.
 \fista\ is able solve problems of the form
 \begin{equation}\label{eq:composite-goal}
 \min_{\bm{\alpha}} F(\bm{\alpha}) = f(\bm{\alpha}) + g(\bm{\alpha}),
@@ -22,7 +20,7 @@ For our goal given by \cref{eq:composite-goal} we set \(f(\bm{\alpha})\) to
 \begin{equation*}
  f(\bm{\alpha}) = \frac{1}{2} \left\Vert  \bm{\Phi} \bm{\alpha} - \bm{y}   \right\Vert_2^2,
 \end{equation*}
-such that the gradient of \(f\) is then given by
+such that the gradient of \(f\) is given by
 \begin{equation*}
   \bm{\nabla} f(\bm{\alpha}) = \bm{\Phi}^\intercal \left(\bm{\Phi} \bm{\alpha} - \bm{y} \right).
 \end{equation*}
@@ -34,18 +32,18 @@ The Lipschitz constant for the gradient of \(f\) is
 where \(\sigma_{\max} \) corresponds to the maximum singular value~\autocite{fista}.
 Additionally we set \(g\) to
 \begin{equation*}
-  g(\bm{\alpha}, \lambda) = \mathcal{S} \left( \bm{\alpha}, \lambda \right).
+  g(\bm{\alpha}) = n \lambda \mathcal{S} \left( \bm{\alpha} \right).
 \end{equation*}
 
 \sidetitle{Moreau envelope}
 We now define the Moreau envelope of a function \(g (\bm{\alpha})\), which is given for any \(\lambda \in (0, +\infty)\) by
 \begin{equation}
   \label{eq:moreau-reg}
-  M_{g}(\bm{\alpha}, \lambda) = \inf_{\bm{x}} \left\{  g(x) + (1/(2\lambda)) \Vert x - \bm{\alpha} \Vert_2^2 \right\}.
+  M_{g}(\bm{\alpha}, \lambda) = \inf_{\bm{x}} \left\{  g(\bm{x}) + (1/(2\lambda)) \Vert \bm{x} - \bm{\alpha} \Vert_2^2 \right\}.
 \end{equation}
 It is a regularized, smooth version of our function \(g(\bm{\alpha})\) that has the
 same minimum as \(g(\bm{\alpha})\).
-That means, that every point that minimizes \(M_{g}(\bm{\alpha}, \lambda)\) also
+This implies that every point that minimizes \(M_{g}(\bm{\alpha}, \lambda)\) also
 minimizes our original function \(g (\bm{\alpha})\)~\cite{proxsurvey}.
 Finally, we are able to define the proximal operator that returns the infimum
 point of \cref{eq:moreau-reg} by
@@ -65,25 +63,25 @@ thus also for optimizing \(g(\bm{\alpha})\).
 In the most general case \cref{eq:proximal} would imply the need to solve a convex optimization problem.
 Fortunately we can find closed form solutions for many functions.
 Consider for example \(g(\bm{\alpha}) = 0\).
-In this case the Moreau envelope and the proximal operator are trivial
+In this case, the Moreau envelope and the proximal operator are trivial and
+given by
 \begin{align*}
  M_{0}(\bm{\alpha}, \lambda) &= \inf_{\bm{x}} \left\{ 0 + 1/(2 \lambda) \Vert \bm{\alpha} - \bm{x} \Vert_2^2 \right\}, \\
  \prox[\(0\)]{\bm{\alpha}}{\lambda} &= \bm{\alpha}.
 \end{align*}
-It is obvious that the minimum of \(M_g(\bm{\alpha}, \lambda)\) is equivalent to the minimum of \(g(\bm{\alpha})\), the proximal operator is corresponds to a gradient step on \(M_g\).
+It is obvious that the minimum of \(M_g(\bm{\alpha}, \lambda)\) is equivalent to the minimum of \(g(\bm{\alpha})\), the proximal operator corresponds to a gradient step on \(M_g\).
 
 We are now going to develop a minimizer for our composite goal that resembles a majorization-minimization algorithm.
 To do this, we first define an upper-bound of \(F(\bm{\alpha})\)~(\emph{majorizing}) that we are then going to minimize~(\emph{minimization})~\autocite{proxsurvey}.
 
 \sidetitle{Upper Bound}
-We first give a regularized linearization of \(f(\bm{\alpha})\) at an arbitrary,
-but fixed point \(\bm{y}\) for an \(L > 0\):
+We first give a regularized linearization of \(f(\bm{\alpha})\) at an arbitrary but fixed point \(\bm{y}\) for an \(L > 0\):
 \begin{equation}\label{eq:f-approx}
   \hat{f}_L(\bm{\alpha}, \bm{y}) = f(\bm{y}) + \left< \bm{\alpha} - \bm{y}, \bm{\nabla} f (\bm{y}) \right> +
   L/2 \Vert \bm{\alpha} - \bm{y} \Vert_2^2,
 \end{equation}
 where the angle brackets \( \left< \bm{x}, \bm{y} \right> = \bm{y}^\intercal \bm{x} \) represent the inner product.
-The first two summation terms are given by the first order Taylor expansion of \(f(\bm{\alpha})\) at the point \(\bm{y}\), the last term can be interpreted as a trust-region or regularization, that punishes large deviations from~\(\bm{y}\)~\cite{proxsurvey}.
+The first two terms are given by the first order Taylor expansion of \(f(\bm{\alpha})\) at the point \(\bm{y}\), the last term can be interpreted as a trust-region or regularization that punishes large deviations from~\(\bm{y}\)~\cite{proxsurvey}.
 We then combine this linearization with our second function to archive an upper-bound of \(F(\bm{\alpha})\):
 \begin{equation}\label{eq:goal-approx}
   Q_L(\bm{\alpha}, \bm{y}) = f(\bm{y}) + \left< \bm{\alpha} - \bm{y}, \bm{\nabla} f (\bm{y}) \right> +
@@ -91,20 +89,20 @@ We then combine this linearization with our second function to archive an upper-
   g(\bm{\alpha}).
 \end{equation}
 We can see from \cref{eq:lipschitz} that \(Q_L(\bm{\alpha}, \bm{y})\) is an
-upper-bound of \(F(\bm{\alpha})\) iff.~L is equal to or greater than the Lipschitz
+upper-bound of \(F(\bm{\alpha})\) if L is equal to or greater than the Lipschitz
 constant of \(\bm{\nabla} f(\bm{\alpha})\).
 
 \sidetitle{Fixed-point minimizer}
 The minimizer for this approximation is then given as the fixed-point equation
 \begin{align}\label{eq:step}
-  \pi_{g(\bm{\alpha})}(\bm{\alpha}^*, L) &=  \argmin_{\bm{x}} \left\{ Q_L(\bm{x}, \bm{\alpha}) \right\}\nonumber\\
+  \pi_{g(\bm{\alpha})}(\bm{\alpha}^*, L) &=  \argmin_{\bm{x}} \left\{ Q_L(\bm{x}, \bm{\alpha}^*) \right\}\nonumber\\
        &= \prox[\(g\)]{\bm{\alpha^*} - L^{-1} \bm{\nabla} f (\bm{\alpha^*})}{L^{-1} } \nonumber\\
        &= \prox[\(g\)]{\bm{\alpha^*} - L^{-1} \bm{\Phi}^\intercal \left(\bm{\Phi} \bm{\alpha^*} - \bm{y} \right)}
          {L^{-1}},
 \end{align}
 where \(\bm{\alpha}^*\) denotes the optimal solution and \(L\) is the Lipschitz constant of \(\bm{\nabla} f\) given by \cref{eq:lipf}~\cite{fista}.
 In this equation \(L\) is used to determine the optimal stepsize.
-This minimizer is called proximal gradient algorithm (or proximal-splitting) in the literature, because we first perform a gradient step on \(f'_L(\bm{\alpha})\) given by~\ref{eq:f-approx} and then a proximal step on \(g(\bm{\alpha})\)~\cite{proxsurvey}.
+This minimizer is called proximal gradient algorithm (or proximal-splitting) in the literature, because we first perform a gradient step on \(f'_L(\bm{\alpha})\) given by \cref{eq:f-approx} and then a proximal step on \(g(\bm{\alpha})\)~\cite{proxsurvey}.
 Using \cref{eq:step} repeatedly on a point will result in the fixed-point, i.e.~the minimum of the upper bound, and thus also in the minimum of our original goal~\cite{proxsurvey}.
 
 \begin{algorithm}
@@ -122,13 +120,14 @@ Using \cref{eq:step} repeatedly on a point will result in the fixed-point, i.e.~
 \end{algorithm}
 
 \Cref{eq:step} is all we need to define the simple iterative scheme called
-Iterative Shrinkage Tresholding Algorithm~(\ista) as seen in \cref{alg:ista}.
-Originally the name \ista\ was only used for solving the Lasso problem, but is now used for the more general algorithm as well. 
-For our trivial function \(g(\bm{\alpha}) = 0\) this iterative scheme is identical to the standard gradient descent algorithm.
+Iterative Shrinkage Tresholding Algorithm~(\ista), which is presented by \cref{alg:ista}.
+Originally the name \ista\ was only used for solving the lasso problem, but is now used for the more general algorithm as well. 
+This iterative scheme is identical to the standard gradient descent algorithm for our trivial function \(g(\bm{\alpha}) = 0\).
 
 \sidetitle{Proximal Operators for Regularization}
 So far we have only seen the proximal operator of a very simple function.
-This is of course not satisfactory, the motivation for this chapter is solving the Lasso and the Elastic Net regularization problems.
+Of course, this is not yet satisfactory.
+The goal of this chapter is to describe a solver for non-differentiable penalties.
 Fortunately, closed form solutions for the other needed proximal operators exist as well:
 \begin{align}
 \label{eq:prox-lasso}
@@ -139,32 +138,32 @@ Fortunately, closed form solutions for the other needed proximal operators exist
                           \left(  \prox[\( \lambda \Vert \bm{\alpha} \Vert_2^2\)]{\bm{\alpha}}{t} \right)_i &= (\alpha_i/(1 + 2t \lambda)), \nonumber\\
   \text{for Elastic Net} \quad && \prox[\( \lambda \Vert \bm{\alpha} \Vert_1 + \gamma \Vert \bm{\alpha} \Vert_2^2\)]{\bm{\alpha}}{t} &=
                                                                                                                                        \left( 1/(1 + 2 t \gamma) \right) \left(\prox[\(\lambda \Vert \bm{\alpha} \Vert_1\)]{\bm{\alpha}}{t}\right) \nonumber\\
-  \text{for Group Lasso} \quad && {\left(\prox[\( \lambda \sum_{p \in \mathcal{P}} \sqrt{\vert p \vert} \Vert p \Vert_2 \)]{\bm{\alpha}}{t} \right)}_p &=
-                                                                                     \left[ 1 - \left(\lambda t \sqrt{\vert p \vert}\right) \left( \Vert p \Vert_2 \right)^{-1} \right]_+ p \nonumber
+  \text{for Group Lasso} \quad && {\left(\prox[\( \lambda \sum_{\bm{p} \in \mathcal{P}} \sqrt{\vert \bm{p} \vert} \Vert \bm{p} \Vert_2 \)]{\bm{\alpha}}{t} \right)}_{\bm{p}} &= 
+                                                                                     \left[ 1 - \left(\lambda t \sqrt{\vert \bm{p} \vert}\right) \left( \Vert \bm{p} \Vert_2 \right)^{-1} \right]_+ \bm{p}, \nonumber
 \end{align}
 where \( \left( x \right)_+ = \max(x, 0) \) denotes the positive part of \(x\)
 and \(t\) is a stepsize.
 The regularization parameters depend on the function \(g(\bm{\alpha})\).
 We omit the derivations for the sake of brevity, the interested reader refers to the survey paper~\cite{proxsurvey}.
-By setting the regularization parameter \(\lambda\) equal to zero, we again recover the gradient minimization method.
+By setting the regularization parameter \(\lambda\) equal to zero we again recover the gradient minimization method.
 
 \sidetitle{Minimizing Lasso}
 These proximal operators can be used to define a minimizer for a non-smooth
 function \(g\).
 For example, combining~\cref{eq:step} with the proximal operator for the
-Lasso functional \(g(\bm{\alpha}) = \lambda \Vert \bm{\alpha} \Vert_1\) given by~\cref{eq:prox-lasso} results in
+lasso functional \(g(\bm{\alpha}) = n \lambda \Vert \bm{\alpha} \Vert_1\) given by~\cref{eq:prox-lasso} results in
 the minimizer
 \begin{align*}
-  \pi_{\lambda \Vert \bm{\alpha} \Vert_1}(\bm{\alpha^*} ,L)
+  \pi_{n \lambda \Vert \bm{\alpha} \Vert_1}(\bm{\alpha^*} ,L)
   &=  \prox[\(\lambda \Vert \bm{\alpha} \Vert_1\)]{\bm{\alpha^*} - L^{-1} \bm{\nabla} f (\bm{\alpha^*})}{L^{-1}} \\
-  &= {\left[ \left(\bm{\alpha^*} - L^{-1} \bm{\nabla} f (\bm{\alpha^*}) \right) - \lambda L^{-1} \right]}_+ -
-    {\left[ -\left(\bm{\alpha^*} - L^{-1} \bm{\nabla} f (\bm{\alpha^*}) \right) - \lambda L^{-1} \right]}_+,
+  &= {\left[ \left(\bm{\alpha^*} - L^{-1} \bm{\nabla} f (\bm{\alpha^*}) \right) - n \lambda L^{-1} \right]}_+ -
+    {\left[ -\left(\bm{\alpha^*} - L^{-1} \bm{\nabla} f (\bm{\alpha^*}) \right) - n \lambda L^{-1} \right]}_+,
 \end{align*}
 again given as a fixed-point iteration.
 In this equation the function \( \left[ x \right]_+ \) is applied element-wise on its input vector.
 We can then use this minimizer with \cref{alg:ista} to compute a solution to
-the Lasso problem.
-The fixed-point equations for the Lasso and Elastic Net Regularization are
+the lasso problem.
+The fixed-point equations for the lasso and elastic net regularization are
 computed analogously.
 
 \sidetitle{Nesterov's accelerated gradient descent}
@@ -177,7 +176,7 @@ The first step is identical, each following step carries some momentum of the
 step before, thus stabilizing the procedure.
 It is an optimal first-order optimization schema, i.e.~one that cannot be
 improved asymptotically.
-It archives quadratic convergence.
+It achieves quadratic convergence.
 This property is retained when combined with the proximal-splitting procedure \cref{alg:ista}, the result is called \fista~\cite{fista}.
 Each step of \fista\ evaluates the gradient and the proximal operator once, just as \ista does.
 This means that the accelerated algorithm has a comparable cost for each iteration.
@@ -214,11 +213,10 @@ It is then straightforward to derive \cref{alg:linesearch}.
 We need to evaluate the line search once for each iteration step.
 It is possible that this procedure finds a non-optimal \(L\), i.e.~an \(L\) that
 is larger than the Lipschitz constant.
-This leads to a smaller stepsize, which is not a problem in practice, because
-our optimization procedure still converges, although slower than possible.
+This leads to a smaller stepsize, which is not a problem in practice because our optimization procedure still converges, although slower than possible.
 We have to take that into consideration for our choice of linesearch parameters.
-Usual values are \(L = 0.5\) and~\(\eta = 2\).
-Using \cref{alg:linesearch} we can finally present an optimal first order optimization algorithm, shown by \cref{alg:fista}.
+Usual values are \(L = 0.5\) and~\(\eta = 2\)~\cite{fista-backtracking}.
+Using \cref{alg:linesearch}, we can finally present an optimal first order optimization algorithm, shown by \cref{alg:fista}.
 
 It is of course possible to use a constant stepsize like in \cref{alg:ista}.
 To do this, replace the line search with the minimal value of \(L\) and
@@ -229,6 +227,8 @@ A comparison of the practical speed of \ista and \fista with constant stepsize c
 
 An alternative backtracking scheme for \fista is offered in~\cite{fista-backtracking}.
 It offers the same asymptotic convergence speed, but shows practical improvements for some minimization problems.
+A discussion of \fista and other solvers for sparse grids with sparsity-inducing
+penalties is contained in~\cite{sparse-parsimony}.
 
 \begin{figure}[bt]
   \includegraphics[width=\textwidth]{fista}

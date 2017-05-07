@@ -1,47 +1,118 @@
 \chapter{Datasets}\label{cha:datasets}
-We use different datasets in this thesis.
-In this chapter, we look at all used datasets and document the preprocessing
-steps.
-
-\todo{Insert correct values into dataset tables.}
-\todo{Use tabular numbers instead of old-style figures here!}
-We use the following datasets:
-
-\begin{table}[h]
-\begin{tabular}[c]{lrr}
-  \toprule \multicolumn{1}{r}{\textbf{Name}}
-& \multicolumn{1}{r}{\textbf{No.~of predictors}}
-& \multicolumn{1}{r}{\textbf{No.~of instances}}
-\\\midrule
-  Friedman1 & 10 & 10000 \\
-  Concrete & 9 & 1030 \\
-  Power Plant & 4 & 9568 \\
-  Friedman9 & 4  & 200 \\
-  Friedman9 & 4  & 200
-\\\bottomrule
-\end{tabular}
-\caption[List of Datasets]{Datasets used for this thesis.
-  Included is the number of predictors(i.e.~no.~of dimensions) and the number of provided training examples.}
-\end{table}
+In this appendix, we look at all used datasets and document the pre-processing steps.
+We did not perform any pre-processing for datasets that were created ``on the fly'', as they were created with the sparse grid learner in mind.
 
 Each feature of each dataset was scaled to the range \([0,1]\) with the so called min-max
 scaler
 \begin{equation*}
   \operatorname{scale}(\bm{x}) = \frac{\bm{x} - \min({\bm{x}})}{\max{(\bm{x}) - \min(\bm{x})}}.
 \end{equation*}
-
-Because some features of some datasets are distributed in a non-optimal way, we perform a Box--Cox transformation for them using a parameter \(\lambda\):
+Because some features of some datasets are distributed in a non-optimal way, we performed a Box--Cox transformation for them
 \begin{equation*}
   \operatorname{Box--Cox}(x_i) =
   \begin{cases}
     \ln(x_i) & \text{for } \lambda = 0, \\
-    x_i^\lambda - 1 & \text{otherwise}.
+    x_i^\lambda - 1 & \text{otherwise},
   \end{cases}
 \end{equation*}
-We estimate the choice for \(\lambda\) that results in the closest fit to a
-normal distribution using the optimization procedure contained in the statistics module of Scipy.
-Note that we need to shift the data before applying this transformation by a small positive number, because \(ln(0)\) is undefined.
-The used parameters for each dataset can be found in the following tables.
+where \(\lambda\) is a parameter that was estimated by maximizing the log-likelihood~\cite{box-cox-trans}.
+Note that we need to shift the data before applying this transformation by a small positive number because \(\ln(0)\) is undefined.
+
+We used the following datasets:
+\begin{table}[H]
+  \begin{tabular}[c]{
+    r
+    S[table-format=2]
+    S[table-format=5]
+    c
+    c}
+  \toprule \multicolumn{1}{r}{Name \textit{\&} Reference}
+& \multicolumn{1}{c}{No.~of predictors}
+& \multicolumn{1}{c}{No.~of instances}
+& \multicolumn{1}{c}{Scaled}
+& \multicolumn{1}{c}{Box--Cox}\\
+\midrule
+  Friedman1~\cite{datasets-friedman} & 10 & 10000 & \xmark & \Cref{tab:params-friedman1} \\
+  Concrete~\cite{datasets-concrete, datasets-uci} & 8 & 1030 & \cmark & \Cref{tab:params-concrete} \\
+  Power Plant~\cite{datasets-powerplant, datasets-uci} & 4 & 9568 & \xmark & \Cref{tab:params-power-plant}\\
+  Optical Digits~\cite{datasets-uci} & 64 & 5620 & \cmark & \xmark\\
+\bottomrule
+\end{tabular}
+\caption[List of Datasets]{Datasets used for this thesis.}
+\end{table}
+The used parameters for the Box--Cox transformation can be found in the
+following tables.
+
+\begin{table}
+  \centering
+  \begin{tabular}[c]{
+    r
+    S[table-format=2.6]}
+  \toprule \multicolumn{1}{r}{Predictor}
+& \multicolumn{1}{r}{\(\lambda\)}\\
+\midrule
+Water  & 0.806605 \\
+Fly Ash  & -1.994271 \\
+Fine Aggregate  & 1.605275 \\
+Blast Slag  & -2.718958 \\
+Age  & -7.246132 \\
+Coarse Aggregate  & 1.000000 \\
+Compressive Strength  & 1.000000 \\
+Cement  & -0.683939 \\
+Superplasticizer  & -1.491446 \\
+\bottomrule
+\end{tabular}
+\caption{Box--Cox parameters for the concrete dataset.}
+\label{tab:params-concrete}
+\end{table}
+
+\begin{table}[H]
+  \centering
+  \begin{minipage}[b]{0.4\textwidth}
+    \centering
+   \begin{tabular}{
+    r
+    S[table-format=2.6]}
+  \toprule \multicolumn{1}{r}{Predictor}
+& \multicolumn{1}{r}{\(\lambda\)}\\
+\midrule
+\(x_1 \) & 0.737723 \\
+\(x_2 \) & 0.806982 \\
+\(x_3 \) & 0.738149 \\
+\(x_4 \) & 0.659072 \\
+\(x_5 \) & 0.886650 \\
+\(x_6 \) & 0.781566 \\
+\(x_7 \) & 0.737074 \\
+\(x_8 \) & 0.775896 \\
+\(x_9 \) & 0.803518 \\
+\(x_{10} \) & 0.817283 \\
+\bottomrule
+\end{tabular}
+\caption{Box--Cox parameters for the Friedman1 dataset.}
+\label{tab:params-friedman1}
+  \end{minipage}\qquad
+  \begin{minipage}[b]{0.4\textwidth}
+  \centering
+   \begin{tabular}{
+    r
+    S[table-format=2.6]}
+  \toprule \multicolumn{1}{r}{Predictor}
+& \multicolumn{1}{r}{\(\lambda\)}\\
+\midrule
+Ap  & 0.000000 \\
+V  & -0.439899 \\
+Rh  & 2.460495 \\
+At  & 1.335384 \\
+Pe  & 1.000000 \\
+\bottomrule
+\end{tabular}
+\caption{Box--Cox parameters for the power plant dataset.}
+\label{tab:params-power-plant}
+
+
+\end{minipage}
+\end{table}
+
 
 %%% Local Variables:
 %%% mode: latex

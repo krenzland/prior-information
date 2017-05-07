@@ -1,52 +1,80 @@
 \chapter{Introduction}\label{chapter:introduction}
-We live in a world that runs on data.
-Machine learning and statistics are the fuel, that continues to power the
-ever-growing service industry but also supply companies with needed business
-intelligence.
+\sidetitle{Machine Learning}
+The importance of machine learning and statistics cannot be overstated.
+They both supply techniques that are useful for data analysis and forecasting that power many scientific achievements.
+Data is becoming more and more important for companies as well, for example to predict future business outcomes, to generate more efficient advertisement, and
+so on.
+Many usage scenarios have one thing in common:
+They are complicated problems with a vast supply of data.
 
-Throughout this thesis we will discuss supervised learning methods that are
-based on the sparse grids methodology.
-Sparse grids is a family of closely-related discretization techniques that
-originates from numerical partial differential equations.
+\sidetitle{Sparse Grids}
+Throughout this thesis we will discuss supervised learning methods that are based on the sparse grid methodology.
+Sparse grids is a family of closely-related discretization techniques that originates from numerical partial differential equations.
 It approximates functions with many simple basis functions.
-Because of its origins, the notation and terminology used is different from the
-standard machine learning one.
-We try to fit the sparse grid learning methods into a coherent and simple
-statistical framework that is natural to the application.
+In comparison to a full grid, sparse grids represent a rather economical
+approach.
+They scale far better for higher dimensions, which is even more critical for machine
+learning than it is for other numerical problems.
+This is because while a ten-dimensional differential equation might be called high-dimensional,
+a ten-dimensional dataset is merely low-dimensional.
+In other words, sparse grids break the curse of dimensionality to some degree~\cite{bungartzSparse}.
+For some problems, this is not enough.
+Very-high dimensional problems still suffer from the same malediction.
+Fortunately, modern sparse grids research is concerned with economic solutions for
+challenging problems.
 
-The goal of this thesis is to introduce and evaluate different ways to integrate
-prior information into our data mining procedure.
-In this context prior information corresponds to something akin to the standard
-Bayesian prior.
-This prior represents assumptions, which can be either drawn from the dataset or
-from the inherent properties of the sparse grid methods.
+While techniques such as adaptive grids~\cite{spatAdaptGrid} do not manage to
+turn the malediction into a benediction, they still mitigate some of the torment.
+Sparse grids are ideally suited for complicated problems, as they scale well with
+larger data and because they can solve arbitrarily complex problems through
+a combination of their solid theoretical foundation and the continuous development of new refinement strategies.
+This eclectic approach leads to the effect that while they might not be the best strategy for a
+specific problem, they are a very robust strategy, which can be used for a
+plethora of diverse tasks.
+
+Sparse grids have a long history consisting of a vast array of theoretical arguments.
+While they are thoroughly studied from a functional theory background, discussions about their statistical interpretation are rather new~\cite{sparse-parsimony}.
+In this thesis we will focus on their statistical properties by trying to fit them into an intuitive and simple statistical framework.
+
+\sidetitle{Prior Knowledge}
+The goal of this thesis is to introduce and evaluate different ways of integrating prior knowledge into our data mining procedure.
+In this context, prior information corresponds to something akin to the standard Bayesian prior.
+This prior represents assumptions, which can be either drawn from the dataset or from inherent properties of the sparse grid methods.
+Following the dogma that more data is always better than fewer data, more prior
+knowledge can always be helpful.
+This is only natural, because it is always easier to create useful
+models by starting with more (correct) assumptions about the true model.
 
 The thesis starts with a chapter explaining the needed preliminary mathematical
 techniques and especially the fundamentals of the sparse grid framework.
-
 We then look at different ways of including prior information into this learning method.
 We make the following contributions:
 \begin{itemize}
 \item In \cref{cha:regularization} we evaluate different regularization
-  methods that help us to impose smoothness constrains on our model and allows us
+  methods that help us to impose smoothness constraints on our model and allow us
   to simplify our models.
   We begin with a discussion of regularization theory and then segue into an
   analysis of two fundamental methods: Tikhonov regularization and
   sparsity-inducing penalties.
   The regularization methods represent different assumptions.
-  We present both methods that show promising results under only mild conditions
-  and methods, which are better suited for problems where we can make stronger
+  We present two methods that show promising results under only mild conditions,
+  and methods that are better suited for problems where we can make stronger
   assumptions about the data.
-  The chapter also contains a discussion of an alternative state-of-the-art solver for regularized linear systems, that is able to handle the newly added methods.
+  The chapter also contains a discussion of an alternative state-of-the-art solver for regularized linear systems that is able to handle the newly added methods.
 \item In \cref{cha:grid-gen} we evaluate different grid construction methods.
   In contrast to the chapter before, we use our prior knowledge to modify the
   grid generation process, which is more efficient than the regularization
-  approach, but also requires stronger assumptions than the basic regularization approaches.
-  We first discuss a generalized form of sparse grids, that allows us to modify
+  approach, but also requires stronger assumptions than the regularization approach.
+  We first discuss a generalized form of sparse grids that we can use to modify
   the granularity of the generated grid.
-  Secondly we introduce interaction-term-aware sparse grids that allow us to construct grids with a different granularity depending on the dimensions and their interaction with each other.
-  The methods discussed in that chapter allow us to tackle very-high dimensional problems, that are impossible or inefficient for regular sparse grids.
+  Secondly, we introduce interaction-term-aware sparse grids that allow us to
+  construct grids that only include a subset of all possible interactions.
+  The methods discussed in that chapter enable us to tackle very-high dimensional problems that are impossible or inefficient for regular sparse grids.
 \end{itemize}
+
+We will use multiple artificial and real-word datasets.
+To improve the performance of our method, we used some pre-processing steps.
+They are all documented in \cref{cha:datasets}.
 
 %%% Local Variables:
 %%% mode: latex
